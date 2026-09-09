@@ -252,4 +252,118 @@ void Game::TakeItem(const string& itemName)
     }
 }
 
+void Game::DropItem(const string& itemName)
+{
+    if (itemName.empty())
+    {
+        cout << "Drop what?\n";
+        return;
+    }
 
+    Item* item = player->FindItem(itemName);
+
+    if (item == nullptr)
+    {
+        cout << "You are not carrying " << itemName << ".\n";
+        return;
+    }
+
+    player->RemoveItem(item);
+    currentRoom->AddItem(item); //drop the item in that room
+
+    cout
+        << "You drop the \033[1;33m" << item->GetName() << "\033[0m.\n";
+
+    if (item->GetItemType() == ItemType::Map)
+    {
+        hasMap = false;
+    }
+}
+
+void Game::ShowMap() const
+{
+    if (!hasMap)
+    {
+        cout << "You don't have a map.\n";
+        return;
+    }
+
+    cout << R"MAP(
++========================================================+
+|                                                        |
+|                   * MAP OF ELOS *                      |
+|                                                        |
+|      ^  ^  ^  ^  ^                                     |
+|    ^               ^        .----------------.         |
+|   ^   DARK FOREST   ^-------| FOREST CLEARING|         |
+)MAP"
+
+<< "|    ^               ^        |       \033[1;31mX\033[0m        |"  // had to do like this cause in the R"MAP i can't use colors
+
+<< R"MAP(         |
+|      ^  ^  ^  ^  ^          '-------+--------'         |
+|             |                       :                  |
+|       .-----+------.                :                  |
+|       |  ABANDONED |                :                  |
+|       |   GARDEN   |                :                  |
+|       '-----+------'                :                  |
+|             |                       : Hidden path      |
+|            / \                      :                  |
+|          /     \                    :                  |
+|        /         \                  :                  |
+|       |-----------|                 :                  |
+|       | OLD HOUSE |                 :                  |
+|       |-----------|                 :                  |
+|       | (KITCHEN) |                 :                  |
+|       '-----------'                 :                  |
+|            |                        :                  |
+|        +---+---------+              :                  |
+|        |  BASEMENT   |              :                  |
+|        +-------------+              :                  |
+|                                .----+----.             |
+|                               /   DARK    \            |
+|                              /   PASSAGE   \           |
+|                              '------+------'           |
+|                                     |                  |
+|                              * * * * * * * *           |
+|                            *  CRYSTAL CAVE  *          |
+|                              * * * * * * * *           |
+|                                                        |
+|      X = Something is buried here                      |
+|      : = Hidden path                                   |
+|                                                        |
++========================================================+
+
+)MAP";
+}
+
+void Game::LookAtItem(const string& itemName) const
+{
+    Item* item = player->FindItem(itemName);
+    bool isInInventory = item != nullptr;
+
+    if (item == nullptr)
+    {
+        item = currentRoom->FindItem(itemName);
+    }
+
+    if (item == nullptr)
+    {
+        cout << "You cannot see an item called " << itemName << ".\n";
+        return;
+    }
+
+    item->Look();
+
+    if (item->GetItemType() == ItemType::Map)
+    {
+        if (isInInventory)
+        {
+            ShowMap();
+        }
+        else
+        {
+            cout << "The parchment is too fragile to examine from here. You should pick it up first.\n";
+        }
+    }
+} 
