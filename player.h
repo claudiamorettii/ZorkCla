@@ -1,20 +1,18 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "GameObject.h"
 #include "room.h"
 
 class Room;
+class Item;
 
 class Player : public GameObject
 {
 public:
-    Player(
-        const string& name,
-        const string& description,
-        Room* startingRoom
-    );
+    Player(const string& name, const string& description, Room* startingRoom);
 
     Room* GetCurrentRoom() const;
 
@@ -24,10 +22,16 @@ public:
 
     void TakeDamage(int amount);
     void Heal(int amount);
+    bool AddItem(Item* item);
+    bool RemoveItem(Item* item);
+    Item* FindItem(const std::string& name) const;
+    void ShowInventory() const;
 
 private:
+
     Room* currentRoom;
 
     int health;
     int maxHealth;
+    vector<Item*> inventory;
 };

@@ -1,13 +1,15 @@
 #include <iostream>
+#include <algorithm>
 
 #include "player.h"
 #include "Room.h"
+#include "item.h"
+#include "GameObject.h"
 
-#define RED_ "\033[1;35m"
-#define _WHITE "\033[0m"
+using namespace std; 
 
 Player::Player(const string& name, const string& description, Room* startingRoom) : 
-    GameObject(name, description), currentRoom(startingRoom), health(60), maxHealth(100)
+    GameObject(name, description, ObjectType::Player), currentRoom(startingRoom), health(60), maxHealth(100)
 {
 }
 
@@ -57,5 +59,62 @@ void Player::Heal(int amount)
     if (health > maxHealth)
     {
         health = maxHealth;
+    }
+}
+
+bool Player::AddItem(Item* item)
+{
+    if (item == nullptr)
+    {
+        return false;
+    }
+
+    inventory.push_back(item);
+    return true;
+}
+
+bool Player::RemoveItem(Item* item)
+{
+    auto result = find(inventory.begin(), inventory.end(), item);
+
+    if (result == inventory.end())
+    {
+        return false;
+    }
+
+    inventory.erase(result);
+    return true;
+}
+
+Item* Player::FindItem(const std::string& name) const
+{
+    for (Item* item : inventory)
+    {
+        if (item->GetName() == name)
+        {
+            return item;
+        }
+    }
+
+    return nullptr;
+}
+
+void Player::ShowInventory() const
+{
+   
+    if (inventory.empty())
+    {
+        cout << "\nYour backpack is empty.\n";
+        return;
+    }
+
+    cout << "\nIn your \033[1mbackpack\033[0m you have:\n";
+
+    for (const Item* item : inventory)
+    {
+        cout
+            << "- "
+            << item->GetName()
+            << '\n';
     }
 }

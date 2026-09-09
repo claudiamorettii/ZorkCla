@@ -2,9 +2,13 @@
 
 #include <memory>
 #include <string>
-#include <vector>
+#include <algorithm>
 
 #include "room.h"
+#include "item.h"
+#include "player.h"
+
+using namespace std;
 
 class Game
 {
@@ -15,15 +19,26 @@ public:
 
 private:
     vector<unique_ptr<Room>> rooms;
+    vector<unique_ptr<Item>> items;
     Room* currentRoom;
     bool running;
+    Room* clearingRoom;
+    Room* tunnelRoom;
 
+    bool hasMap;
+    bool passageDiscovered;
+    void ShowMap() const;
+    void Dig();
     void CreateWorld();
-
     Room* CreateRoom(const string& name, const string& description);
 
     void ProcessCommand(const string& input);
     void Move(const string& direction);
     void ShowHelp() const;
+    void TakeItem(const string& itemName);
+    void DropItem(const string& itemName);
+    void LookAtItem(const string& itemName) const;
+    
+    unique_ptr<Player> player;
 };
 
