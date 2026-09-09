@@ -8,23 +8,20 @@
 class Room : public GameObject
 {
 public:
-    Room(
-        const std::string& name,
-        const std::string& description
-    );
+    Room(const string& name, const string& description);
 
     void Look() const override;
 
-    void AddExit(const std::string& direction, Room* destination, const std::string& viewDescription);
+    void AddExit(const string& direction, Room* destination, const string& viewDescription);
 
-    Room* GetExit(const std::string& direction) const;
+    Room* GetExit(const string& direction) const;
 
 private:
     struct ExitInfo
     {
         Room* destination;
-        std::string viewDescription;
+        string viewDescription;
     };
 
-    std::map<std::string, ExitInfo> exits;
+    map <string, ExitInfo> exits;
 };

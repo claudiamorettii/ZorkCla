@@ -27,6 +27,9 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>File di risorse</Filter>
     </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h">
@@ -36,6 +39,9 @@
       <Filter>File di risorse</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
+      <Filter>File di risorse</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
       <Filter>File di risorse</Filter>
     </ClInclude>
   </ItemGroup>

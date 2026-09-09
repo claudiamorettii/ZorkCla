@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "Room.h"
+#include "room.h"
 
 class Game
 {
@@ -14,16 +14,16 @@ public:
     void Run();
 
 private:
-    std::vector<std::unique_ptr<Room>> rooms;
+    vector<unique_ptr<Room>> rooms;
     Room* currentRoom;
     bool running;
 
     void CreateWorld();
 
-    Room* CreateRoom(const std::string& name, const std::string& description);
+    Room* CreateRoom(const string& name, const string& description);
 
-    void ProcessCommand(const std::string& input);
-    void Move(const std::string& direction);
+    void ProcessCommand(const string& input);
+    void Move(const string& direction);
     void ShowHelp() const;
 };
 

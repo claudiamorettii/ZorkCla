@@ -6,8 +6,8 @@
 #include "game.h"
 
 
-Game::Game()
-    : currentRoom(nullptr),
+Game::Game(): 
+    currentRoom(nullptr),
     running(true)
 {
     CreateWorld();
@@ -15,30 +15,30 @@ Game::Game()
 void Game::Run()
 {
 
-    std::cout << "\nYou slowly open your eyes...\n";
-    std::cout << "You cannot remember how you arrived here.\n";
+    cout << "\nYou slowly open your eyes...\n";
+    cout << "You cannot remember how you arrived here.\n";
 
     currentRoom->Look();
      
     while (running)
     {
-        std::cout << "\n> ";
+        cout << "\n> ";
 
-        std::string input;
-        std::getline(std::cin, input);
+        string input;
+        getline(cin, input);
 
         ProcessCommand(input);
     }
 
-    std::cout << "\nThank you for playing ELOS.\n";
+    cout << "\nThank you for playing ELOS.\n";
 }
 
-void Game::ProcessCommand(const std::string& input)
+void Game::ProcessCommand(const string& input)
 {
-    std::istringstream commandStream(input);
+    istringstream commandStream(input);
 
-    std::string command;
-    std::string argument;
+    string command;
+    string argument;
 
     commandStream >> command;
     commandStream >> argument;
@@ -68,42 +68,40 @@ void Game::ProcessCommand(const std::string& input)
     }
     else
     {
-        std::cout << "I don't understand that command.\n";
+        cout << "I don't understand that command.\n";
     }
 }
 
-void Game::Move(const std::string& direction)
+void Game::Move(const string& direction)
 {
     Room* destination = currentRoom->GetExit(direction);
 
     if (destination == nullptr)
     {
-        std::cout << "You cannot go in that direction.\nThere is nothing there.";
+        cout << "You cannot go in that direction.\nThere is nothing there.";
         return;
     }
 
-    std::cout << "\nYou head\033[1;32m " << direction << "\033[0m...\nAnd arrive at:\n";
+    cout << "\nYou head\033[1;32m " << direction << "\033[0m...\nAnd arrive at:\n";
     currentRoom = destination;
     currentRoom->Look();
 }
 
 void Game::ShowHelp() const
 {
-    std::cout << "\nAvailable commands:\n";
-    std::cout << "- look\n";
-    std::cout << "- go north/south/east/west/up/down\n";
-    std::cout << "- help\n";
-    std::cout << "- quit\n";
+    cout << "\nAvailable commands:\n";
+    cout << "- look\n";
+    cout << "- go north/south/east/west/up/down\n";
+    cout << "- help\n";
+    cout << "- quit\n";
 }
 
 Room* Game::CreateRoom(
-    const std::string& name,
-    const std::string& description
+    const string& name,
+    const string& description
 )
 {
-    rooms.push_back(
-        std::make_unique<Room>(name, description)
-    );
+    rooms.push_back(make_unique<Room>(name, description));
 
     return rooms.back().get();
 }

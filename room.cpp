@@ -5,42 +5,42 @@
 #define RED_ "\033[1;35m"
 #define _WHITE "\033[0m"
 
-Room::Room(const std::string& name, const std::string& description) :
+Room::Room(const string& name, const string& description) :
     GameObject(name, description, ObjectType::Room)
 {
 }
 
 void Room::Look() const
 {
-    std::cout << RED_ "\n=== " << name << " ===\n"  _WHITE;
-    std::cout << description << "\n";
+    cout << RED_ "\n=== " << name << " ===\n"  _WHITE;
+    cout << description << "\n";
 
     if (exits.empty())
     {
-        std::cout << "There are no visible exits.\n";
+        cout << "There are no visible exits.\n";
         return;
     }
 
 
     for (const auto& exit : exits)
     {
-        std::cout << exit.second.viewDescription;
+        cout << exit.second.viewDescription;
     }
 
-    std::cout << "You can go:\n";
+    cout << "You can go:\n";
 
     for (const auto& exit : exits)
     {
-         std::cout << "- " << exit.first << "\n";
+         cout << "- " << exit.first << "\n";
     }
 }
 
-void Room::AddExit(const std::string& direction, Room* destination, const std::string& viewDescription)
+void Room::AddExit(const string& direction, Room* destination, const string& viewDescription)
 {
     exits[direction] = { destination, viewDescription };
 }
 
-Room* Room::GetExit(const std::string& direction) const
+Room* Room::GetExit(const string& direction) const
 {
     auto result = exits.find(direction);
 

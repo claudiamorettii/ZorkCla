@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <list>
+
+using namespace std;
 
 enum class ObjectType
 {
@@ -14,18 +17,18 @@ enum class ObjectType
 class GameObject
 {
 public:
-    GameObject(const std::string& name, const std::string& description, ObjectType type);
+    GameObject(const string& name, const string& description, ObjectType type);
 
     virtual ~GameObject() = default;
 
     virtual void Look() const;
 
-    const std::string& GetName() const;
-    const std::string& GetDescription() const;
+    const string& GetName() const;
+    const string& GetDescription() const;
     ObjectType GetType() const;
 
 protected:
-    std::string name;
-    std::string description;
+    string name;
+    string description;
     ObjectType type;
 };

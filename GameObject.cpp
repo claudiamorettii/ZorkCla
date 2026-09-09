@@ -2,29 +2,23 @@
 
 #include "GameObject.h"
 
-GameObject::GameObject(
-    const std::string& name,
-    const std::string& description,
-    ObjectType type
-)
-    : name(name),
-    description(description),
-    type(type)
+GameObject::GameObject(const string& name, const string& description, ObjectType type) :
+    name(name), description(description), type(type)
 {
 }
 
 void GameObject::Look() const
 {
-    std::cout << "\n" << name << "\n";
-    std::cout << description << "\n";
+    cout << "\n" << name << "\n";
+    cout << description << "\n";
 }
 
-const std::string& GameObject::GetName() const
+const string& GameObject::GetName() const
 {
     return name;
 }
 
-const std::string& GameObject::GetDescription() const
+const string& GameObject::GetDescription() const
 {
     return description;
 }
