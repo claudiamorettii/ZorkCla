@@ -1,20 +1,22 @@
 #include <iostream>
+#include <algorithm>
 
 #include "room.h"
+#include "item.h"
 
-#define RED_ "\033[1;35m"
-#define _WHITE "\033[0m"
-
+//--------------------------------------
 Room::Room(const string& name, const string& description) :
     GameObject(name, description, ObjectType::Room)
 {
 }
 
+//--------------------------------------
 void Room::Look() const
 {
-    cout << RED_ "\n=== " << name << " ===\n"  _WHITE;
+    cout <<  "\033[1;35m\n=== " << name << " ===\n\033[0m";
     cout << description << "\n";
 
+    //no exit
     if (exits.empty())
     {
         cout << "There are no visible exits.\n";
@@ -24,22 +26,32 @@ void Room::Look() const
 
     for (const auto& exit : exits)
     {
-        cout << exit.second.viewDescription;
+        cout << exit.second.viewDescription; //second is the line I add for telling the position with a sentence
     }
 
-    cout << "You can go:\n";
+    if (!items.empty()) //items in the rooms
+    {
+        for (const Item* item : items)
+        {
+           cout << item->GetDescription(); //print the description of the item
+        }
+    }
 
+    cout << "\nYou can go:\n";
+    
     for (const auto& exit : exits)
     {
-         cout << "- " << exit.first << "\n";
+         cout << "- " << exit.first << "\n"; //where u can go with colors
     }
 }
 
+//--------------------------------------
 void Room::AddExit(const string& direction, Room* destination, const string& viewDescription)
 {
     exits[direction] = { destination, viewDescription };
 }
 
+//--------------------------------------
 Room* Room::GetExit(const string& direction) const
 {
     auto result = exits.find(direction);
@@ -49,5 +61,46 @@ Room* Room::GetExit(const string& direction) const
         return nullptr;
     }
 
-    return result->second.destination;
+    return result->second.destination; 
+}
+
+//--------------------------------------
+void Room::AddItem(Item* item)
+{
+    if (item != nullptr)
+    {
+        items.push_back(item);
+    }
+}
+
+//--------------------------------------
+bool Room::RemoveItem(Item* item)
+{
+    auto result = find(
+        items.begin(),
+        items.end(),
+        item
+    );
+
+    if (result == items.end())
+    {
+        return false;
+    }
+
+    items.erase(result);
+    return true;
+}
+
+//--------------------------------------
+Item* Room::FindItem(const string& name) const
+{
+    for (Item* item : items)
+    {
+        if (item->GetName() == name)
+        {
+            return item;
+        }
+    }
+
+    return nullptr;
 }

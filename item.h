@@ -4,7 +4,7 @@
 
 #include <string>
 
-
+//item divided so is easier to classify them 
 enum class ItemType
 {
     Generic,

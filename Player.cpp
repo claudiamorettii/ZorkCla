@@ -13,25 +13,32 @@ Player::Player(const string& name, const string& description, Room* startingRoom
 {
 }
 
+//--------------------------------------
+//get where the player is
 Room* Player::GetCurrentRoom() const
 {
     return currentRoom;
 }
+
+//--------------------------------------
 int Player::GetHealth() const
 {
     return health;
 }
 
+//--------------------------------------
 int Player::GetMaxHealth() const
 {
     return maxHealth;
 }
 
+//--------------------------------------
 bool Player::IsAlive() const
 {
     return health > 0;
 }
 
+//--------------------------------------
 void Player::TakeDamage(int amount)
 {
     if (amount <= 0)
@@ -47,6 +54,7 @@ void Player::TakeDamage(int amount)
     }
 }
 
+//--------------------------------------
 void Player::Heal(int amount)
 {
     if (amount <= 0)
@@ -62,6 +70,8 @@ void Player::Heal(int amount)
     }
 }
 
+//--------------------------------------
+//take and put in the backpack
 bool Player::AddItem(Item* item)
 {
     if (item == nullptr)
@@ -73,6 +83,8 @@ bool Player::AddItem(Item* item)
     return true;
 }
 
+//--------------------------------------
+//drop (the position is in game.cpp)
 bool Player::RemoveItem(Item* item)
 {
     auto result = find(inventory.begin(), inventory.end(), item);
@@ -86,6 +98,7 @@ bool Player::RemoveItem(Item* item)
     return true;
 }
 
+//--------------------------------------
 Item* Player::FindItem(const std::string& name) const
 {
     for (Item* item : inventory)
@@ -99,6 +112,8 @@ Item* Player::FindItem(const std::string& name) const
     return nullptr;
 }
 
+//--------------------------------------
+//look in the backpack
 void Player::ShowInventory() const
 {
    

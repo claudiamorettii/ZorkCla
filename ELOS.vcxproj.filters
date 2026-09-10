@@ -30,6 +30,9 @@
     <ClCompile Include="player.cpp">
       <Filter>File di risorse</Filter>
     </ClCompile>
+    <ClCompile Include="item.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h">
@@ -42,6 +45,9 @@
       <Filter>File di risorse</Filter>
     </ClInclude>
     <ClInclude Include="player.h">
+      <Filter>File di risorse</Filter>
+    </ClInclude>
+    <ClInclude Include="item.h">
       <Filter>File di risorse</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,6 +9,8 @@
 class Room;
 class Item;
 
+//--------------------------------------
+//player is difine like a gameobject
 class Player : public GameObject
 {
 public:
@@ -19,7 +21,6 @@ public:
     int GetHealth() const;
     int GetMaxHealth() const;
     bool IsAlive() const;
-
     void TakeDamage(int amount);
     void Heal(int amount);
     bool AddItem(Item* item);
@@ -30,7 +31,6 @@ public:
 private:
 
     Room* currentRoom;
-
     int health;
     int maxHealth;
     vector<Item*> inventory;

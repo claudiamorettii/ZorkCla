@@ -7,12 +7,11 @@
 
 using namespace std;
 
-#define RED_ "\033[1;31m"
-#define _WHITE "\033[0m"
-
 int main()
 {
-	cout << RED_ "----------- Welcome to ELOS!-----------\n" _WHITE << "--- Game created by Claudia Moretti ---\n" << RED_ "---------------------------------------\n" _WHITE;
+	cout << "\033[1;31m----------- Welcome to ELOS!-----------\n\033[0m" //\033[0m back to normal, \033[1;31m bold and red
+	    << "--- Game created by Claudia Moretti ---\n"
+	   	<< "\033[1;31m---------------------------------------\n\033[0m";
     
 	Game ELOS;
 

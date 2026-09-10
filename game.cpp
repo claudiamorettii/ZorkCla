@@ -5,7 +5,7 @@
 #include "room.h"
 #include "game.h"
 
-
+//--------------------------------------
 Game::Game(): 
     currentRoom(nullptr),
     tunnelRoom(nullptr), 
@@ -13,13 +13,15 @@ Game::Game():
     passageDiscovered(false),
     running(true)
 {
+    //all thinghs 
     CreateWorld();
 
-
+    //player
     player = make_unique<Player>("Player", "You cannot remember how you arrived here.", currentRoom);
 
 }
 
+//--------------------------------------
 void Game::Run()
 {
 
@@ -39,6 +41,8 @@ void Game::Run()
     }
 }
 
+//--------------------------------------
+//commands to be fixed
 void Game::ProcessCommand(const string& input)
 {
     istringstream commandStream(input);
@@ -101,6 +105,7 @@ void Game::ProcessCommand(const string& input)
     }
 }
 
+//--------------------------------------
 //tells you where u went with colors
 void Game::Move(const string& direction)
 {
@@ -117,6 +122,7 @@ void Game::Move(const string& direction)
     currentRoom->Look();
 }
 
+//--------------------------------------
 void Game::ShowHelp() const
 {
     cout << "\nAvailable commands:\n";
@@ -126,6 +132,7 @@ void Game::ShowHelp() const
     cout << "- quit\n";
 }
 
+//--------------------------------------
 Room* Game::CreateRoom(
     const string& name,
     const string& description
@@ -136,7 +143,7 @@ Room* Game::CreateRoom(
     return rooms.back().get();
 }
 
-
+//--------------------------------------
 void Game::CreateWorld()
 {
 
@@ -182,6 +189,7 @@ void Game::CreateWorld()
     livingRoom->AddItem(items.back().get());
 }
 
+//--------------------------------------
 //dig for the secret passage
 void Game::Dig()
 {
@@ -216,7 +224,7 @@ void Game::Dig()
     currentRoom->Look();
 }
 
-
+//--------------------------------------
 void Game::TakeItem(const string& itemName)
 {
     if (itemName.empty())
@@ -252,6 +260,7 @@ void Game::TakeItem(const string& itemName)
     }
 }
 
+//--------------------------------------
 void Game::DropItem(const string& itemName)
 {
     if (itemName.empty())
@@ -280,6 +289,8 @@ void Game::DropItem(const string& itemName)
     }
 }
 
+//--------------------------------------
+//only if the player hasMAp
 void Game::ShowMap() const
 {
     if (!hasMap)
@@ -337,6 +348,7 @@ void Game::ShowMap() const
 )MAP";
 }
 
+//--------------------------------------
 void Game::LookAtItem(const string& itemName) const
 {
     Item* item = player->FindItem(itemName);

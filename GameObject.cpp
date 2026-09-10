@@ -7,6 +7,7 @@ GameObject::GameObject(const string& name, const string& description, ObjectType
 {
 }
 
+//--------------------------------------
 void GameObject::Look() const
 {
     cout << "\n" << name << "\n";
