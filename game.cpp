@@ -1,5 +1,7 @@
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+#include <cctype>
 
 #include "GameObject.h"
 #include "room.h"
@@ -45,7 +47,15 @@ void Game::Run()
 //commands to be fixed
 void Game::ProcessCommand(const string& input)
 {
-    istringstream commandStream(input);
+    string normalizedInput = input;
+
+    transform(normalizedInput.begin(), normalizedInput.end(), normalizedInput.begin(),[](unsigned char character)
+        {
+            return static_cast<char>(tolower(character));
+        }
+    );
+
+    istringstream commandStream(normalizedInput);
 
     string command;
     string argument;
@@ -87,11 +97,11 @@ void Game::ProcessCommand(const string& input)
     {
         Dig();
     }
-    else if (command == "take")
+    else if (command == "take" || command == "pick")
     {
         TakeItem(argument);
     }
-    else if (command == "drop")
+    else if (command == "drop" || command == "leave")
     {
         DropItem(argument);
     }
@@ -99,7 +109,7 @@ void Game::ProcessCommand(const string& input)
     {
         EquipItem(argument);
     }
-    else if (command == "inventory")
+    else if (command == "inventory" || command == "backpack")
     {
         player->ShowInventory();
     }
@@ -131,7 +141,13 @@ void Game::ShowHelp() const
 {
     cout << "\nAvailable commands:\n";
     cout << "- look\n";
+    cout << "- look ...\n";
     cout << "- go north/south/east/west/up/down\n";
+    cout << "- take/pick\n";
+    cout << "- drop/leave\n";
+    cout << "- equip\n";
+    cout << "- inventory/backpack\n";
+    cout << "- dig\n";
     cout << "- help\n";
     cout << "- quit\n";
 }
@@ -285,8 +301,7 @@ void Game::DropItem(const string& itemName)
     player->RemoveItem(item);
     currentRoom->AddItem(item); //drop the item in that room
 
-    cout
-        << "You drop the \033[1;33m" << item->GetName() << "\033[0m.\n";
+    cout << "You drop the \033[1;33m" << item->GetName() << "\033[0m.\n";
 
     if (item->GetItemType() == ItemType::Map)
     {
