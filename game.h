@@ -31,7 +31,7 @@ private:
     void Dig();
     void CreateWorld();
     Room* CreateRoom(const string& name, const string& description);
-
+    void LookAround() const;
     void ProcessCommand(const string& input);
     void Move(const string& direction);
     void ShowHelp() const;

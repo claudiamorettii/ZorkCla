@@ -3,6 +3,7 @@
 
 #include "room.h"
 #include "item.h"
+#include "game.h"
 
 //--------------------------------------
 Room::Room(const string& name, const string& description) :
@@ -37,11 +38,22 @@ void Room::Look() const
         }
     }
 
+}
+
+//--------------------------------------
+void Room::ShowExits() const
+{
+    if (exits.empty())
+    {
+        cout << "\nThere are no visible exits.\n";
+        return;
+    }
+
     cout << "\nYou can go:\n";
-    
+
     for (const auto& exit : exits)
     {
-         cout << "- " << exit.first << "\n"; //where u can go with colors
+        cout << "- " << exit.first << "\n"; //where u can go with colors
     }
 }
 

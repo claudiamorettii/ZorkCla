@@ -17,7 +17,7 @@ Game::Game():
     CreateWorld();
 
     //player
-    player = make_unique<Player>("Player", "You cannot remember how you arrived here.", currentRoom);
+    player = make_unique<Player>("Player", "You cannot remember how you arrived here.\n", currentRoom);
 
 }
 
@@ -57,7 +57,7 @@ void Game::ProcessCommand(const string& input)
     {
         if (argument.empty())
         {
-            currentRoom->Look();
+            LookAround(); //the one with the if for the map
         }
         else
         {
@@ -119,7 +119,7 @@ void Game::Move(const string& direction)
 
     cout << "\nYou head\033[1;32m " << direction << "\033[0m...\nAnd arrive at:\n";
     currentRoom = destination;
-    currentRoom->Look();
+    LookAround();
 }
 
 //--------------------------------------
@@ -152,12 +152,12 @@ void Game::CreateWorld()
     Room* darkForest = CreateRoom("DARK FOREST", "Ancient trees surround you, their twisted branches hiding the sky.");
     Room* clearing = CreateRoom("FOREST CLEARING", "Moonlight illuminates a small clearing. Something metallic shines beneath the leaves.");
     Room* garden = CreateRoom("ABANDONED GARDEN", "Dead plants cover the garden of an old house.");
-    Room* entrance = CreateRoom("House Entrance", "The entrance is cold and silent. Ally, a staircase leads to the upper floor.");
-    Room* kitchen = CreateRoom("Kitchen", "Dust covers the kitchen. A strange smell comes from the cupboards.");
-    Room* livingRoom = CreateRoom("Living Room", "Broken furniture fills the room. An old parchment rests on a table.");
-    Room* basement = CreateRoom("Basement", "The basement is damp and almost completely dark.");
-    Room* tunnel = CreateRoom("Underground Tunnel", "A narrow tunnel continues beneath the house.");
-    Room* crystalCave = CreateRoom("Crystal Cave", "Glowing crystals illuminate an enormous underground cave.");
+    Room* entrance = CreateRoom("HOUSE ENTRANCE", "The entrance is cold and silent. Ally, a staircase leads to the upper floor.");
+    Room* kitchen = CreateRoom("KITCHEN", "Dust covers the kitchen. A strange smell comes from the cupboards.");
+    Room* livingRoom = CreateRoom("LIVING ROOM", "Broken furniture fills the room.");
+    Room* basement = CreateRoom("BASEMENT", "The basement is damp and almost completely dark.");
+    Room* tunnel = CreateRoom("UNDERGROUND TUNNEL", "A narrow tunnel continues beneath the house.");
+    Room* crystalCave = CreateRoom("CRYSTAL CAVE", "Glowing crystals illuminate an enormous underground cave.");
 
     //exit.second.viewDescription describe with sentence (addexit and then make the exit around)
     darkForest->AddExit("east", clearing, "To the \033[1;32meast\033[0m, a faint trail leads toward a small clearing.\n");
@@ -213,15 +213,15 @@ void Game::Dig()
 
     passageDiscovered = true;
 
-    clearingRoom->AddExit( "down", tunnelRoom, "Beneath the red X, ancient stone steps descend ""\033[1;32mdown\033[0m into a hidden passage.");
+    clearingRoom->AddExit( "down", tunnelRoom, "Beneath the red X, ancient stone steps descend ""\033[1;32mdown\033[0m into a hidden passage.\n");
 
-    tunnelRoom->AddExit("up", clearingRoom, "Behind you, the stone steps lead " "\033[1;32mup\033[0m to the Forest Clearing.");
+    tunnelRoom->AddExit("up", clearingRoom, "Behind you, the stone steps lead " "\033[1;32mup\033[0m to the Forest Clearing.\n");
 
-    cout << "\nYou follow the markings on the old map and begin digging.\n"
+    cout << "\nYou begin digging beneath the red X.\n"
         << "Beneath the roots, your hands uncover a flat stone slab.\n"
         << "As you push it aside, a staircase descending underground is revealed.\n";
 
-    currentRoom->Look();
+    LookAround();
 }
 
 //--------------------------------------
@@ -287,6 +287,20 @@ void Game::DropItem(const string& itemName)
     {
         hasMap = false;
     }
+}
+
+//--------------------------------------
+void Game::LookAround() const
+{
+    currentRoom->Look();
+
+    if (currentRoom == clearingRoom && hasMap && !passageDiscovered)
+    {
+        cout << "\nAs you compare the clearing with the old map, you notice that the red X matches a patch of disturbed soil.\n"
+            << "Perhaps you should \033[1;33mdig\033[0m here.\n";
+    }
+
+    currentRoom->ShowExits();
 }
 
 //--------------------------------------
@@ -375,7 +389,7 @@ void Game::LookAtItem(const string& itemName) const
         }
         else
         {
-            cout << "The parchment is too fragile to examine from here. You should pick it up first.\n";
+            cout << "The parchment is too fragile to examine from here.\n";
         }
     }
 } 

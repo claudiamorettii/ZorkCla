@@ -19,6 +19,7 @@ public:
     void AddItem(Item* item);
     bool RemoveItem(Item* item);
     Item* FindItem(const std::string& name) const;
+    void ShowExits() const;
 
 
 private:
