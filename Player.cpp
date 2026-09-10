@@ -9,7 +9,7 @@
 using namespace std; 
 
 Player::Player(const string& name, const string& description, Room* startingRoom) : 
-    GameObject(name, description, ObjectType::Player), currentRoom(startingRoom), health(60), maxHealth(100)
+    GameObject(name, description, ObjectType::Player), currentRoom(startingRoom), health(60), maxHealth(100), equippedWeapon(nullptr)
 {
 }
 
@@ -68,6 +68,48 @@ void Player::Heal(int amount)
     {
         health = maxHealth;
     }
+}
+
+//--------------------------------------
+bool Player::Equip(Item* item)
+{
+    if (item == nullptr)
+    {
+        return false;
+    }
+
+    if (item->GetItemType() != ItemType::Weapon)
+    {
+        return false;
+    }
+
+    equippedWeapon = item;
+    return true;
+}
+
+//--------------------------------------
+void Player::Unequip()
+{
+    equippedWeapon = nullptr;
+}
+
+//--------------------------------------
+Item* Player::GetEquippedWeapon() const
+{
+    return equippedWeapon;
+}
+
+//--------------------------------------
+int Player::GetAttackDamage() const
+{
+    const int baseDamage = 2;
+
+    if (equippedWeapon == nullptr)
+    {
+        return baseDamage;
+    }
+
+    return baseDamage + equippedWeapon->GetDamage();
 }
 
 //--------------------------------------

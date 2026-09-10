@@ -95,6 +95,10 @@ void Game::ProcessCommand(const string& input)
     {
         DropItem(argument);
     }
+    else if (command == "equip")
+    {
+        EquipItem(argument);
+    }
     else if (command == "inventory")
     {
         player->ShowInventory();
@@ -179,12 +183,13 @@ void Game::CreateWorld()
     clearingRoom = clearing;
     tunnelRoom = tunnel;
 
+    //creation item
     items.push_back(make_unique<Item>("sword", 
-        "An old \033[1;33msword\033[0m lies on the ground. Its blade is damaged, but still dangerously sharp.\n", ItemType::Weapon, true));
+        "An old \033[1;33msword\033[0m lies on the ground. Its blade is damaged, but still dangerously sharp.\n", ItemType::Weapon, true, 15));
 
     clearing->AddItem(items.back().get());
 
-    items.push_back(make_unique<Item>("old map", "You notice an \033[1;33mold map\033[0m, its marked with a red X.\n",ItemType::Map, true));
+    items.push_back(make_unique<Item>("old map", "You notice an \033[1;33mold map\033[0m, its marked with a red X.\n",ItemType::Map, true, 0));
 
     livingRoom->AddItem(items.back().get());
 }
@@ -287,6 +292,35 @@ void Game::DropItem(const string& itemName)
     {
         hasMap = false;
     }
+}
+
+//--------------------------------------
+//equip an item
+void Game::EquipItem(const string& itemName)
+{
+    if (itemName.empty())
+    {
+        cout << "Equip what?\n";
+        return;
+    }
+
+    Item* item = player->FindItem(itemName);
+
+    if (item == nullptr)
+    {
+        cout << "You are not carrying "
+            << itemName << ".\n";
+        return;
+    }
+
+    if (!player->Equip(item))
+    {
+        cout << "You cannot equip that item.\n";
+        return;
+    }
+
+    cout << "You equip the \033[1;33m" << item->GetName() << "\033[0m.\n"
+        << "Your attack damage is now " << player->GetAttackDamage() << ".\n";
 }
 
 //--------------------------------------

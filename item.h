@@ -1,9 +1,10 @@
-#pragma once
-
-#include "GameObject.h"
+#pragma once //I use this instead of #ifndef #define #endif 
 
 #include <string>
 
+#include "GameObject.h"
+
+//--------------------------------------
 //item divided so is easier to classify them 
 enum class ItemType
 {
@@ -18,11 +19,13 @@ enum class ItemType
     Container
 };
 
+//--------------------------------------
 class Item : public GameObject
 {
 public:
-    Item(const string& name, const string& description, ItemType type, bool portable);
+    Item(const string& name, const string& description, ItemType type, bool portable, int damage = 0);
 
+    int GetDamage() const;
     void Look() const override;
     ItemType GetItemType() const;
     bool IsPortable() const;
@@ -30,4 +33,5 @@ public:
 private:
     ItemType itemType;
     bool portable;
+    int damage;
 };

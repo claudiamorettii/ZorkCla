@@ -1,5 +1,4 @@
-#pragma once
-
+#pragma once //I use this instead of #ifndef #define #endif 
 #include <memory>
 #include <string>
 #include <algorithm>
@@ -38,6 +37,7 @@ private:
     void TakeItem(const string& itemName);
     void DropItem(const string& itemName);
     void LookAtItem(const string& itemName) const;
+    void EquipItem(const std::string& itemName);
     
     unique_ptr<Player> player;
 };

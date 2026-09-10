@@ -1,4 +1,4 @@
-#pragma once
+#pragma once //I use this instead of #ifndef #define #endif 
 
 #include <string>
 #include <vector>
@@ -27,11 +27,16 @@ public:
     bool RemoveItem(Item* item);
     Item* FindItem(const std::string& name) const;
     void ShowInventory() const;
+    bool Equip(Item* item);
+    void Unequip();
+    Item* GetEquippedWeapon() const;
+    int GetAttackDamage() const;
 
 private:
 
     Room* currentRoom;
     int health;
     int maxHealth;
+    Item* equippedWeapon;
     vector<Item*> inventory;
 };
