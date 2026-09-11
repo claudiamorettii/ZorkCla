@@ -4,7 +4,14 @@
 
 //--------------------------------------
 Item::Item(const string& name, const string& description, ItemType type, bool portable, int damage, int healingAmount):
-    GameObject(name, description, ObjectType::Item), itemType(type), portable(portable), damage(damage), healingAmount(healingAmount)
+    GameObject(name, description, ObjectType::Item),
+    itemType(type), 
+    portable(portable), 
+    damage(damage),
+    healingAmount(healingAmount),
+    quantity(1),
+    harmChance(0),
+    harmDamage(0)
 {
 }
 
@@ -86,4 +93,34 @@ bool Item::ContainsItemType(ItemType type) const
     }
 
     return false;
+}
+
+//--------------------------------------
+//For the berries
+int Item::GetQuantity() const
+{
+    return quantity;
+}
+
+//--------------------------------------
+//For the berries
+void Item::SetQuantity(int amount)
+{
+    if (amount > 0)
+    {
+        quantity = amount;
+    }
+}
+
+//--------------------------------------
+//For the berries
+bool Item::ConsumeOne()
+{
+    if (quantity <= 0)
+    {
+        return false;
+    }
+
+    --quantity;
+    return true;
 }

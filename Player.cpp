@@ -9,7 +9,11 @@
 using namespace std; 
 
 Player::Player(const string& name, const string& description, Room* startingRoom) : 
-    GameObject(name, description, ObjectType::Player), currentRoom(startingRoom), health(60), maxHealth(100), equippedWeapon(nullptr)
+    GameObject(name, description, ObjectType::Player), 
+    currentRoom(startingRoom), 
+    health(60),
+    maxHealth(100), 
+    equippedWeapon(nullptr)
 {
 }
 

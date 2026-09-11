@@ -35,10 +35,20 @@ public:
     bool AddContent(Item* item);
     bool ContainsItemType(ItemType type) const;
 
+    //for the berries
+    int GetQuantity() const;
+    void SetQuantity(int amount);
+    bool ConsumeOne();
+
 private:
     ItemType itemType;
     bool portable;
     int damage;
     int healingAmount;
     vector<Item*> contents;
+
+
+    int quantity;
+    int harmChance;
+    int harmDamage;
 };

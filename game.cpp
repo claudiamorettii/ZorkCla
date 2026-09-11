@@ -2,11 +2,26 @@
 #include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <random> //for the berries
 
 #include "GameObject.h"
 #include "room.h"
 #include "game.h"
 #include "player.h"
+
+//--------------------------------------
+//for the random berries
+namespace
+{
+    int RandomBetween(int minimum, int maximum)
+    {
+        static random_device randomDevice;
+        static mt19937 generator(randomDevice()); //the ranodm numbers
+        uniform_int_distribution<int> distribution(minimum, maximum);
+
+        return distribution(generator);
+    }
+}
 
 //--------------------------------------
 Game::Game(): 
@@ -231,14 +246,7 @@ void Game::CreateWorld()
     items.push_back(make_unique<Item>("sword", 
         "An old \033[1;33msword\033[0m lies on the ground. Its blade is damaged, but still dangerously sharp.\n", ItemType::Weapon, true, 15));
     clearing->AddItem(items.back().get());
-    
-    items.push_back(make_unique<Item>("berries",
-        "A cluster of bright red berries grows beneath a twisted bush. They look fresh, although their unusual colour makes you hesitate.\n", ItemType::Weapon, true, 0, 15));
-    clearing->AddItem(items.back().get());
-
-    items.push_back(make_unique<Item>("apple", "A surprisingly fresh red \033[1;33mapple\033[0m sits on the table.\n", ItemType::Food, true, 0, 15));
-    kitchen->AddItem(items.back().get());
-
+   
     items.push_back(make_unique<Item>("old map", "You notice an \033[1;33mold map\033[0m, its marked with a red X.\n",ItemType::Map, true, 0));
     livingRoom->AddItem(items.back().get());
 
@@ -249,10 +257,21 @@ void Game::CreateWorld()
     items.push_back(make_unique<Item>("batteries",
         "Two dusty \033[1;33mbatteries\033[0m lie inside the rusted toolbox.", ItemType::Battery, true));
     basement->AddItem(items.back().get());
+
+    //creation food
+    items.push_back(make_unique<Item>("berries",
+        "A cluster of bright red \033[1;33mberries\033[0m grows beneath a twisted bush. They look fresh, although their unusual colour makes you hesitate.\n", 
+        ItemType::Food, true, 10, 15));
+    Item* berries = items.back().get();
+    berries->SetQuantity(RandomBetween(2, 5));
+    clearing->AddItem(berries);
+
+    items.push_back(make_unique<Item>("apple", "A surprisingly fresh red \033[1;33mapple\033[0m sits on the table.\n", ItemType::Food, true, 0, 15));
+    kitchen->AddItem(items.back().get());
 }
 
 //--------------------------------------
-//dig for the secret passage
+//dig for the secret passagep
 void Game::Dig()
 {
     if (currentRoom != clearingRoom)
@@ -364,14 +383,18 @@ void Game::EatItem(const string& itemName)
 
     if (item == nullptr)
     {
-        cout << "You are not carrying " << itemName << ".\n";
+        cout << "You are not carrying "
+            << itemName
+            << ".\n";
 
         return;
     }
 
     if (item->GetItemType() != ItemType::Food)
     {
-        cout << "You cannot eat the " << item->GetName() << ".\n";
+        cout << "You cannot eat the "
+            << item->GetName()
+            << ".\n";
 
         return;
     }
@@ -379,21 +402,57 @@ void Game::EatItem(const string& itemName)
     if (player->GetHealth() == player->GetMaxHealth())
     {
         cout << "You are already at full health.\n";
-
         return;
     }
 
-    const int healthBefore = player->GetHealth();
+    const bool harmful = RandomBetween(1, 100) <= 50;
 
-    player->Heal(item->GetHealingAmount());
+    if (!item->ConsumeOne())
+    {
+        cout << "There is nothing left to eat.\n";
+        player->RemoveItem(item);
+        return;
+    }
 
-    const int healthRecovered = player->GetHealth() - healthBefore;
+    cout << "\nYou eat one of the "
+        << item->GetName()
+        << ".\n";
 
-    player->RemoveItem(item);
+    if (harmful)
+    {
+        player->TakeDamage(item->GetDamage());
 
-    cout << "\nYou eat the \033[1;33m" << item->GetName() << "\033[0m.\n"
-        << "You recover \033[1;32m" << healthRecovered << " HP\033[0m.\n"
-        << "Health: " << player->GetHealth()  << "/" << player->GetMaxHealth() << "\n";
+        cout << "\033[1;31m"
+            << "A sharp pain spreads through your stomach.\n"
+            << "You lose "
+            << item->GetDamage()
+            << " HP."
+            << "\033[0m\n";
+    }
+    else
+    {
+        player->Heal(item->GetHealingAmount());
+        const int recovered = player->GetHealth() - player->GetHealth();
+        cout << "\033[1;32m" << "You recover " << recovered << " HP." << "\033[0m\n";
+    }
+
+    if (item->GetQuantity() == 0)
+    {
+        player->RemoveItem(item);
+        cout << "There is none left.\n";
+    }
+    else
+    {
+        cout << "Remaining: " << item->GetQuantity() << "\n";
+    }
+
+    cout << "Health: " << player->GetHealth() << "/" << player->GetMaxHealth() << "\n";
+
+    if (!player->IsAlive())
+    {
+        cout << "\n\033[1;31m" << "Your vision fades into darkness...\n" << "You have died." << "\033[0m\n";
+        running = false;
+    }
 }
 
 //--------------------------------------
