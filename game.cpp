@@ -367,41 +367,40 @@ void Game::ShowMap() const
 |                                                        |
 |                   * MAP OF ELOS *                      |
 |                                                        |
-|      ^  ^  ^  ^  ^                                     |
-|    ^               ^        .----------------.         |
-|   ^   DARK FOREST   ^-------| FOREST CLEARING|         |
+|         ^  ^  ^  ^  ^                                  |
+|       ^               ^        .----------------.      |
+|      ^   DARK FOREST   ^-------| FOREST CLEARING|      |
 )MAP"
 
-<< "|    ^               ^        |       \033[1;31mX\033[0m        |"  // had to do like this cause in the R"MAP i can't use colors
+<< "|       ^               ^         |       \033[1;31mX\033[0m      |"  // had to do like this cause in the R"MAP i can't use colors
 
-<< R"MAP(         |
-|      ^  ^  ^  ^  ^          '-------+--------'         |
-|             |                       :                  |
-|       .-----+------.                :                  |
-|       |  ABANDONED |                :                  |
-|       |   GARDEN   |                :                  |
-|       '-----+------'                :                  |
-|             |                       : Hidden path      |
-|            / \                      :                  |
-|          /     \                    :                  |
-|        /         \                  :                  |
-|       |-----------|                 :                  |
-|       | OLD HOUSE |                 :                  |
-|       |-----------|                 :                  |
-|       | (KITCHEN) |                 :                  |
-|       '-----------'                 :                  |
-|            |                        :                  |
-|        +---+---------+              :                  |
-|        |  BASEMENT   |              :                  |
-|        +-------------+              :                  |
-|                                .----+----.             |
-|                               /   DARK    \            |
-|                              /   PASSAGE   \           |
-|                              '------+------'           |
-|                                     |                  |
-|                              * * * * * * * *           |
-|                            *  CRYSTAL CAVE  *          |
-|                              * * * * * * * *           |
+<< R"MAP(       |
+|         ^  ^  ^  ^  ^          '-------+--------'      |
+|                |                       :               |
+|          .-----+------.                :               |
+|          |  ABANDONED |                :               |
+|          |   GARDEN   |                :               |
+|          '-----+------'                :               |
+|       _________|_____________          :               |
+|      /                       \         :               |
+|     /        OLD HOUSE        \        :               |
+|    +---------+----------+------+       :               |
+|    | LIVING | ENTRANCE |KITCHEN|       :               |
+|    |  ROOM  |          |       |       :               |
+|    | (west) |          |(east) |       :               |
+|    +----+----+----------+------+       :               |
+|         |                              :               |
+|     +---+---------+                    :               |
+|     |  BASEMENT   |                    :               |
+|     +-------------+                    :               |
+|                                   .----+----.          |
+|                                  /   DARK    \         |
+|                                 /   PASSAGE   \        |
+|                                 '------+------'        |
+|                                        |               |
+|                                 * * * * * * * *        |
+|                               *  CRYSTAL CAVE  *       |
+|                                 * * * * * * * *        |
 |                                                        |
 |      X = Something is buried here                      |
 |      : = Hidden path                                   |
