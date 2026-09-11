@@ -36,6 +36,7 @@ private:
     void ShowHelp() const;
     void TakeItem(const string& itemName);
     void DropItem(const string& itemName);
+    void EatItem(const std::string& itemName);
     void LookAtItem(const string& itemName) const;
     void EquipItem(const std::string& itemName);
     void PutItem(const std::string& arguments);

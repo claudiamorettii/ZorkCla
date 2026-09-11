@@ -6,6 +6,7 @@
 #include "GameObject.h"
 #include "room.h"
 #include "game.h"
+#include "player.h"
 
 //--------------------------------------
 Game::Game(): 
@@ -105,6 +106,14 @@ void Game::ProcessCommand(const string& input)
     {
         DropItem(argument);
     }
+    else if (command == "eat")
+    {
+        EatItem(argument);
+    }
+    else if (command == "health")
+    {
+        cout << "\nYour health: " << player->GetHealth() << "/" << player->GetMaxHealth() << "\n";
+    }
     else if (command == "equip")
     {
         EquipItem(argument);
@@ -158,10 +167,12 @@ void Game::ShowHelp() const
     cout << "- go north/south/east/west/up/down\n";
     cout << "- take/pick\n";
     cout << "- drop/leave\n";
+    cout << "- eat ...\n";
     cout << "- equip\n";
     cout << "- inventory/backpack\n";
     cout << "- dig\n";
     cout << "- put\n";
+    cout << "- health\n";
     cout << "- help\n";
     cout << "- quit\n";
 }
@@ -220,12 +231,19 @@ void Game::CreateWorld()
     items.push_back(make_unique<Item>("sword", 
         "An old \033[1;33msword\033[0m lies on the ground. Its blade is damaged, but still dangerously sharp.\n", ItemType::Weapon, true, 15));
     clearing->AddItem(items.back().get());
+    
+    items.push_back(make_unique<Item>("berries",
+        "A cluster of bright red berries grows beneath a twisted bush. They look fresh, although their unusual colour makes you hesitate.\n", ItemType::Weapon, true, 0, 15));
+    clearing->AddItem(items.back().get());
+
+    items.push_back(make_unique<Item>("apple", "A surprisingly fresh red \033[1;33mapple\033[0m sits on the table.\n", ItemType::Food, true, 0, 15));
+    kitchen->AddItem(items.back().get());
 
     items.push_back(make_unique<Item>("old map", "You notice an \033[1;33mold map\033[0m, its marked with a red X.\n",ItemType::Map, true, 0));
     livingRoom->AddItem(items.back().get());
 
-    items.push_back(make_unique<Item>( "flashlight", 
-        "An old \033[1;33mflashlight\033[0m rests on the kitchen counter. Its battery compartment is empty.", ItemType::Flashlight, true));
+    items.push_back(make_unique<Item>("flashlight", 
+        "An old \033[1;33mflashlight\033[0m rests on the kitchen counter. Its battery compartment is empty.\n", ItemType::Flashlight, true));
     kitchen->AddItem(items.back().get());
 
     items.push_back(make_unique<Item>("batteries",
@@ -333,6 +351,52 @@ void Game::DropItem(const string& itemName)
 }
 
 //--------------------------------------
+//EAT a food
+void Game::EatItem(const string& itemName)
+{
+    if (itemName.empty())
+    {
+        cout << "Eat what?\n";
+        return;
+    }
+
+    Item* item = player->FindItem(itemName);
+
+    if (item == nullptr)
+    {
+        cout << "You are not carrying " << itemName << ".\n";
+
+        return;
+    }
+
+    if (item->GetItemType() != ItemType::Food)
+    {
+        cout << "You cannot eat the " << item->GetName() << ".\n";
+
+        return;
+    }
+
+    if (player->GetHealth() == player->GetMaxHealth())
+    {
+        cout << "You are already at full health.\n";
+
+        return;
+    }
+
+    const int healthBefore = player->GetHealth();
+
+    player->Heal(item->GetHealingAmount());
+
+    const int healthRecovered = player->GetHealth() - healthBefore;
+
+    player->RemoveItem(item);
+
+    cout << "\nYou eat the \033[1;33m" << item->GetName() << "\033[0m.\n"
+        << "You recover \033[1;32m" << healthRecovered << " HP\033[0m.\n"
+        << "Health: " << player->GetHealth()  << "/" << player->GetMaxHealth() << "\n";
+}
+
+//--------------------------------------
 //equip an item
 void Game::EquipItem(const string& itemName)
 {
@@ -408,10 +472,7 @@ void Game::PutItem(const string& arguments)
         return;
     }
 
-    if (
-        container->GetItemType() == ItemType::Flashlight &&
-        item->GetItemType() != ItemType::Battery
-        )
+    if (container->GetItemType() == ItemType::Flashlight && item->GetItemType() != ItemType::Battery)
     {
         cout << "Only batteries fit inside the flashlight.\n";
         return;
