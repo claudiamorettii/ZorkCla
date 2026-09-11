@@ -28,6 +28,7 @@ namespace
 Game::Game(): 
     currentRoom(nullptr),
     tunnelRoom(nullptr), 
+    basementUnlocked(false),
     hasMap(false), //bool for the secret passage that with/o the map does not exist
     passageDiscovered(false),
     running(true)
@@ -168,16 +169,35 @@ void Game::Move(const string& direction)
         return;
     }
 
+    cout << "\n---------------------------------------------------------------------\n\n";
+
+    if (destination == basementRoom && !basementUnlocked)
+    {
+        Item* basementKey = player->FindItem("basement key");
+
+        if (basementKey == nullptr)
+        {
+            cout << "The basement door is locked.\n";
+            cout << "A large iron keyhole is set beneath the handle.\n";
+            return;
+        }
+
+        basementUnlocked = true;
+
+        cout << "You insert the \033[1;33mBasement Key\033[0m into the lock.\n";
+        cout << "With a loud metallic click, the basement door opens.\n";
+    }
+
     if (destination == tunnelRoom && !HasWorkingFlashlight() //only with flashligh
         )
     {
-        cout << "\nThe passage is completely dark.\nYou hear something moving below, but you cannot see it.\n"
+        cout << "The passage is completely dark.\nYou hear something moving below, but you cannot see it.\n"
             << "You need a working \033[1;33mflashlight\033[0m before going down.\n";
 
         return;
     }
 
-    cout << "\n---------------------------------------------------------------------\n\n";
+    
     cout << "You head " << direction << "...\n";
 
     Enemy* enemy = currentRoom->GetEnemy();
@@ -261,6 +281,7 @@ void Game::CreateWorld()
 
     currentRoom = darkForest; //player starts at dark forest
     clearingRoom = clearing;
+    basementRoom = basement;
     tunnelRoom = tunnel;
 
     //creation item
@@ -337,9 +358,7 @@ void Game::Dig()
 //--------------------------------------
 void Game::TakeItem(const string& itemName)
 {
-    cout << "DEBUG room: [" << currentRoom->GetName() << "]\n";
-    cout << "DEBUG searched item: [" << itemName << "]\n";
-
+   
     if (itemName.empty())
     {
         cout << "Take what?\n";
@@ -715,7 +734,7 @@ void Game::ShowMap() const
 
 << "|       ^               ^        |       \033[1;31mX\033[0m        |"  // had to do like this cause in the R"MAP i can't use colors
 
-<< R"MAP(       |
+<< R"MAP(      |
 |         ^  ^  ^  ^  ^          '-------+--------'      |
 |                |                       :               |
 |          .-----+------.                :               |
@@ -725,7 +744,7 @@ void Game::ShowMap() const
 |       _________|_____________          :               |
 |      /                       \         :               |
 |     /        OLD HOUSE        \        :               |
-|    +--------+----------+------+       :               |
+|    +--------+----------+-------+       :               |
 |    | LIVING | ENTRANCE |KITCHEN|       :               |
 |    |  ROOM  |          |       |       :               |
 |    | (west) |          |(east) |       :               |

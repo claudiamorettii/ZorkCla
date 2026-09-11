@@ -24,9 +24,11 @@ private:
     bool running;
     Room* clearingRoom;
     Room* tunnelRoom;
-
+    Room* basementRoom;
+    bool basementUnlocked;
     bool hasMap;
     bool passageDiscovered;
+
     void ShowMap() const;
     void Dig();
     void CreateWorld();

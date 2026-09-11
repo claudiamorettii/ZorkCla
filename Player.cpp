@@ -149,7 +149,14 @@ Item* Player::FindItem(const std::string& name) const
 {
     for (Item* item : inventory)
     {
-        if (item->GetName() == name)
+        string currentName = item->GetName();
+
+        transform(currentName.begin(), currentName.end(), currentName.begin(), [](unsigned char character)
+            {
+                return static_cast<char>(tolower(character));
+            });
+
+        if (currentName == name)
         {
             return item;
         }

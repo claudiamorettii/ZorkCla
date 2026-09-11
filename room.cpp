@@ -135,7 +135,16 @@ Item* Room::FindItem(const string& name) const
 {
     for (Item* item : items)
     {
-        if (item->GetName() == name)
+        
+        string currentName = item->GetName();
+
+        transform(currentName.begin(), currentName.end(), currentName.begin(), [](unsigned char character)
+            {
+                return static_cast<char>(tolower(character));
+            });
+
+       
+        if (currentName == name)
         {
             return item;
         }
