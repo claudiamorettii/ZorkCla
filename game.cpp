@@ -337,6 +337,9 @@ void Game::Dig()
 //--------------------------------------
 void Game::TakeItem(const string& itemName)
 {
+    cout << "DEBUG room: [" << currentRoom->GetName() << "]\n";
+    cout << "DEBUG searched item: [" << itemName << "]\n";
+
     if (itemName.empty())
     {
         cout << "Take what?\n";
@@ -722,7 +725,7 @@ void Game::ShowMap() const
 |       _________|_____________          :               |
 |      /                       \         :               |
 |     /        OLD HOUSE        \        :               |
-|    +---------+----------+------+       :               |
+|    +--------+----------+------+       :               |
 |    | LIVING | ENTRANCE |KITCHEN|       :               |
 |    |  ROOM  |          |       |       :               |
 |    | (west) |          |(east) |       :               |
@@ -752,7 +755,7 @@ void Game::ShowMap() const
 void Game::LookAtItem(const string& itemName) const
 {
     Item* item = player->FindItem(itemName);
-    bool isInInventory = item != nullptr;
+    bool itemInInventory = item != nullptr;
 
     if (item == nullptr)
     {
@@ -761,7 +764,55 @@ void Game::LookAtItem(const string& itemName) const
 
     Enemy* enemy = currentRoom->GetEnemy();
 
-    if (item == nullptr && enemy != nullptr)
+    if (item != nullptr)
+    {
+        if (itemInInventory)
+        {
+            cout << "\n\033[1;33m" << item->GetName() << "\033[0m\n";
+
+            if (player->GetEquippedWeapon() == item)
+            {
+                cout << "You are holding the " << item->GetName() << " in your hand, ready to use it.\n";
+            }
+            else
+            {
+                cout << "You have the " << item->GetName() << " in your backpack.\n";
+            }
+
+            if (item->GetItemType() == ItemType::Flashlight)
+            {
+                if (item->ContainsItemType(ItemType::Battery))
+                {
+                    cout << "The flashlight contains \033[1;32mbatteries\033[0m and is ready to use.\n";
+                }
+                else
+                {
+                    cout << "The flashlight has no \033[1;32mbatteries\033[0m. You need to find some before it can work.\n";
+                }
+            }
+
+            if (item->GetItemType() == ItemType::Map)
+            {
+                if (itemInInventory)
+                {
+                    ShowMap();
+                }
+                else
+                {
+                    cout << "You should pick up the map before unfolding it.\n";
+                }
+            }
+        }
+        else
+        {
+            item->Look();
+        }
+
+        return;
+
+    }
+
+    if (enemy != nullptr)
     {
         string enemyName = enemy->GetName();
 
@@ -770,41 +821,20 @@ void Game::LookAtItem(const string& itemName) const
                 return static_cast<char>(tolower(character));
             });
 
-        if (enemyName.find(itemName) == string::npos)
+        if (enemyName.find(itemName) != string::npos)
         {
-            cout << "You cannot see anything called " << itemName << " here.\n";
+            if (enemy->IsAlive())
+            {
+                enemy->Look();
+            }
+            else
+            {
+                cout << "\nThe lifeless body of the \033[1;31m" << enemy->GetName() << "\033[0m lies on the ground.\n";
+            }
+
             return;
         }
-
-        if (enemy->IsAlive())
-        {
-            enemy->Look();
-        }
-        else
-        {
-            cout << "\nThe lifeless body of the \033[1;31m" << enemy->GetName() << "\033[0m lies motionless on the ground.\n";
-        }
-
-        return;
     }
 
-    if (item == nullptr)
-    {
-        cout << "You cannot see an item called " << itemName << ".\n";
-        return;
-    }
-
-    item->Look();
-
-    if (item->GetItemType() == ItemType::Map)
-    {
-        if (isInInventory)
-        {
-            ShowMap();
-        }
-        else
-        {
-            cout << "You should pick up the map before unfolding it.\n";
-        }
-    }
-} 
+    cout << "You cannot see anything called " << itemName << " here.\n";
+}
