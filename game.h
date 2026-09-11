@@ -6,6 +6,7 @@
 #include "room.h"
 #include "item.h"
 #include "player.h"
+#include "enemy.h"
 
 using namespace std;
 
@@ -43,5 +44,6 @@ private:
     bool HasWorkingFlashlight() const;
     
     unique_ptr<Player> player;
+    vector<unique_ptr<Enemy>> enemies;
 };
 

@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="enemy.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="main.cpp" />
@@ -131,6 +132,7 @@
     <ClCompile Include="room.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="enemy.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="item.h" />

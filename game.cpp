@@ -155,11 +155,11 @@ void Game::Move(const string& direction)
 
     if (destination == nullptr)
     {
-        cout << "You cannot go in that direction.\nThere is nothing there.";
+        cout << "You cannot go in that direction.\n";
         return;
     }
 
-    if (destination == tunnelRoom && !HasWorkingFlashlight()
+    if (destination == tunnelRoom && !HasWorkingFlashlight() //only with flashligh
         )
     {
         cout << "\nThe passage is completely dark.\n You hear something moving below, but you cannot see it.\n"
@@ -168,7 +168,19 @@ void Game::Move(const string& direction)
         return;
     }
 
-    cout << "\nYou head\033[1;32m " << direction << "\033[0m...\nAnd arrive at:\n";
+    cout << "\n---------------------------------------------------------------------\n\n";
+    cout << "You head " << direction << "...\n";
+
+    Enemy* enemy = currentRoom->GetEnemy();
+
+    if (enemy != nullptr && enemy->IsAlive())//if you pass the enemy withput the fight
+    {
+        cout
+            << "You carefully move around the \033[1;31m" << enemy->GetName() 
+            << "\033[0m, keeping a safe distance.\n" << "For now, you manage to avoid the fight.\n";
+    }
+    
+    cout << "And arrive at:\n";
     currentRoom = destination;
     LookAround();
 }
@@ -268,10 +280,14 @@ void Game::CreateWorld()
 
     items.push_back(make_unique<Item>("apple", "A surprisingly fresh red \033[1;33mapple\033[0m sits on the table.\n", ItemType::Food, true, 0, 15));
     kitchen->AddItem(items.back().get());
+
+    //enemy
+    enemies.push_back(make_unique<Enemy>("troll", "A massive \033[1;31mtroll\033[0m stands between you and the entrance of the house.\n", 40, 8));
+    garden->AddEnemy(enemies.back().get());
 }
 
 //--------------------------------------
-//dig for the secret passagep
+//dig for the secret passage
 void Game::Dig()
 {
     if (currentRoom != clearingRoom)
@@ -383,19 +399,13 @@ void Game::EatItem(const string& itemName)
 
     if (item == nullptr)
     {
-        cout << "You are not carrying "
-            << itemName
-            << ".\n";
-
+        cout << "You are not carrying " << itemName << ".\n";
         return;
     }
 
     if (item->GetItemType() != ItemType::Food)
     {
-        cout << "You cannot eat the "
-            << item->GetName()
-            << ".\n";
-
+        cout << "You cannot eat the " << item->GetName() << ".\n";
         return;
     }
 
@@ -405,7 +415,7 @@ void Game::EatItem(const string& itemName)
         return;
     }
 
-    const bool harmful = RandomBetween(1, 100) <= 50;
+    const bool harmful = RandomBetween(1, 100) <= 45;
 
     if (!item->ConsumeOne())
     {
@@ -422,18 +432,12 @@ void Game::EatItem(const string& itemName)
     {
         player->TakeDamage(item->GetDamage());
 
-        cout << "\033[1;31m"
-            << "A sharp pain spreads through your stomach.\n"
-            << "You lose "
-            << item->GetDamage()
-            << " HP."
-            << "\033[0m\n";
+        cout << "\033[1;31mA sharp pain spreads through your stomach.\nYou lose " << item->GetDamage() << " HP.\033[0m\n";
     }
     else
     {
         player->Heal(item->GetHealingAmount());
-        const int recovered = player->GetHealth() - player->GetHealth();
-        cout << "\033[1;32m" << "You recover " << recovered << " HP." << "\033[0m\n";
+        cout << "\033[1;32m" << "You recover " << item->GetHealingAmount() << " HP." << "\033[0m\n";
     }
 
     if (item->GetQuantity() == 0)
@@ -598,7 +602,7 @@ void Game::ShowMap() const
 |      ^   DARK FOREST   ^-------| FOREST CLEARING|      |
 )MAP"
 
-<< "|       ^               ^         |       \033[1;31mX\033[0m      |"  // had to do like this cause in the R"MAP i can't use colors
+<< "|       ^               ^        |       \033[1;31mX\033[0m       |"  // had to do like this cause in the R"MAP i can't use colors
 
 << R"MAP(       |
 |         ^  ^  ^  ^  ^          '-------+--------'      |

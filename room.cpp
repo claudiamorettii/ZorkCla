@@ -4,6 +4,7 @@
 #include "room.h"
 #include "item.h"
 #include "game.h"
+#include "enemy.h"
 
 //--------------------------------------
 Room::Room(const string& name, const string& description) :
@@ -38,6 +39,32 @@ void Room::Look() const
         }
     }
 
+    if (!enemies.empty())
+    {
+       
+        for (const Enemy* enemy : enemies)
+        {
+            if (enemy->IsAlive())
+            {
+                cout << enemy->GetDescription() << "\n";
+            }
+            else
+            {
+                cout << "The corpse of a \033[1;31m" << enemy->GetName() << "\033[0m\n" " lies on the ground.\n";
+            }
+        }
+    }
+}
+
+//--------------------------------------
+Enemy* Room::GetEnemy() const
+{
+    if (enemies.empty())
+    {
+        return nullptr;
+    }
+
+    return enemies.front();
 }
 
 //--------------------------------------
@@ -115,4 +142,13 @@ Item* Room::FindItem(const string& name) const
     }
 
     return nullptr;
+}
+
+//--------------------------------------
+void Room::AddEnemy(Enemy* enemy)
+{
+    if (enemy != nullptr)
+    {
+        enemies.push_back(enemy);
+    }
 }

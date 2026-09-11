@@ -13,7 +13,8 @@ enum class ObjectType
     Item,
     Food,
     Container,
-    Player
+    Player,
+    Enemy
 };
 
 //--------------------------------------

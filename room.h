@@ -6,7 +6,9 @@
 
 #include "GameObject.h"
 
+
 class Item;
+class Enemy;
 
 class Room : public GameObject
 {
@@ -20,7 +22,8 @@ public:
     bool RemoveItem(Item* item);
     Item* FindItem(const std::string& name) const;
     void ShowExits() const;
-
+    void AddEnemy(Enemy* enemy);
+    Enemy* GetEnemy() const;
 
 private:
 
@@ -32,4 +35,5 @@ private:
 
     vector<Item*> items;
     map <string, ExitInfo> exits;
+    vector<Enemy*> enemies;
 };
