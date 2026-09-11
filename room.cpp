@@ -50,7 +50,7 @@ void Room::Look() const
             }
             else
             {
-                cout << "The corpse of a \033[1;31m" << enemy->GetName() << "\033[0m\n" " lies on the ground.\n";
+                cout << "The corpse of a \033[1;31m" << enemy->GetName() << "\033[0m" " lies on the ground.\n";
             }
         }
     }

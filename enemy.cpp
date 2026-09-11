@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "enemy.h"
+#include "item.h"
 
 //--------------------------------------
 Enemy::Enemy(const string& name, const string& description, int maxHealth, int attackDamage): 
@@ -58,4 +59,33 @@ void Enemy::TakeDamage(int amount)
     {
         health = 0;
     }
+}
+
+//--------------------------------------
+void Enemy::AddLoot(Item* item)
+{
+    if (item != nullptr)
+    {
+        loot.push_back(item);
+    }
+}
+
+//--------------------------------------
+bool Enemy::HasLoot() const
+{
+    return !loot.empty();
+}
+
+//--------------------------------------
+Item* Enemy::TakeLoot()
+{
+    if (loot.empty())
+    {
+        return nullptr;
+    }
+
+    Item* item = loot.back();
+    loot.pop_back();
+
+    return item;
 }

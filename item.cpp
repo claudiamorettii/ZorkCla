@@ -1,6 +1,10 @@
 #include <iostream>
 
+
 #include "item.h"
+#include "enemy.h"
+#include "room.h"
+#include "game.h"
 
 //--------------------------------------
 Item::Item(const string& name, const string& description, ItemType type, bool portable, int damage, int healingAmount):
@@ -19,22 +23,14 @@ Item::Item(const string& name, const string& description, ItemType type, bool po
 void Item::Look() const
 {
     GameObject::Look();
-
-    if (portable)
-    {
-        cout << "You can pick it up.\n";
-    }
-    else 
-    {
-        cout << "You can't pick it up.\n";
-    }
+        
     if (!contents.empty())
     {
-        std::cout << "It contains:\n";
+        cout << "It contains:\n";
 
         for (const Item* item : contents)
         {
-            std::cout << "- " << item->GetName() << '\n';
+            cout << "- " << item->GetName() << '\n';
         }
     }
 }

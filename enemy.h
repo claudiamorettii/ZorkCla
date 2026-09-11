@@ -1,8 +1,11 @@
 #pragma once  //I use this instead of #ifndef #define #endif 
 
 #include <string>
+#include <vector>
 
 #include "GameObject.h"
+
+class Item;
 
 //--------------------------------------
 class Enemy : public GameObject
@@ -15,9 +18,13 @@ public:
     int GetMaxHealth() const;
     bool IsAlive() const;
     void TakeDamage(int amount);
+    void AddLoot(Item* item);
+    bool HasLoot() const;
+    Item* TakeLoot();
 
 private:
     int health;
     int maxHealth;
     int attackDamage;
+    vector<Item*> loot;
 };

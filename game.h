@@ -43,6 +43,7 @@ private:
     void PutItem(const std::string& arguments);
     bool HasWorkingFlashlight() const;
     void AttackEnemy(const string& enemyName);
+    void LootEnemy();
     
     unique_ptr<Player> player;
     vector<unique_ptr<Enemy>> enemies;

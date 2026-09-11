@@ -8,6 +8,7 @@
 #include "room.h"
 #include "game.h"
 #include "player.h"
+#include "enemy.h"
 
 //--------------------------------------
 //for the random berries
@@ -44,7 +45,7 @@ void Game::Run()
 {
 
     cout << "\nYou slowly open your eyes...\n";
-    cout << "You cannot remember how you arrived here.\n";
+    cout << "You cannot remember how you arrived here in\n";
 
     LookAround();
      
@@ -137,6 +138,10 @@ void Game::ProcessCommand(const string& input)
     {
         AttackEnemy(argument);
     }
+    else if (command == "loot")
+    {
+        LootEnemy();
+    }
     else if (command == "inventory" || command == "backpack")
     {
         player->ShowInventory();
@@ -166,8 +171,8 @@ void Game::Move(const string& direction)
     if (destination == tunnelRoom && !HasWorkingFlashlight() //only with flashligh
         )
     {
-        cout << "\nThe passage is completely dark.\n You hear something moving below, but you cannot see it.\n"
-            << "You need a working flashlight before going down.\n";
+        cout << "\nThe passage is completely dark.\nYou hear something moving below, but you cannot see it.\n"
+            << "You need a working \033[1;33mflashlight\033[0m before going down.\n";
 
         return;
     }
@@ -252,42 +257,46 @@ void Game::CreateWorld()
     livingRoom->AddExit("east", entrance, "A narrow wooden staircase leads \033[1;32mdown\033[0m to the basement.\n"); 
 
     livingRoom->AddExit("down", basement, "To the \033[1;32meast\033[0m, the archway leads back into the entrance hall.\n");
-    basement->AddExit("up", livingRoom, "A narrow wooden staircase leads \033[1;32mup\033[0m to the iving Room.");
+    basement->AddExit("up", livingRoom, "A narrow wooden staircase leads \033[1;32mup\033[0m to the living Room.\n");
 
     currentRoom = darkForest; //player starts at dark forest
     clearingRoom = clearing;
     tunnelRoom = tunnel;
 
     //creation item
-    items.push_back(make_unique<Item>("sword", 
+    items.push_back(make_unique<Item>("Sword", 
         "An old \033[1;33msword\033[0m lies on the ground. Its blade is damaged, but still dangerously sharp.\n", ItemType::Weapon, true, 15));
     clearing->AddItem(items.back().get());
    
-    items.push_back(make_unique<Item>("old map", "You notice an \033[1;33mold map\033[0m, its marked with a red X.\n",ItemType::Map, true, 0));
+    items.push_back(make_unique<Item>("Old map", "You notice an \033[1;33mold map\033[0m, its marked with a red X.\n",ItemType::Map, true, 0));
     livingRoom->AddItem(items.back().get());
 
-    items.push_back(make_unique<Item>("flashlight", 
+    items.push_back(make_unique<Item>("Flashlight", 
         "An old \033[1;33mflashlight\033[0m rests on the kitchen counter. Its battery compartment is empty.\n", ItemType::Flashlight, true));
     kitchen->AddItem(items.back().get());
 
-    items.push_back(make_unique<Item>("batteries",
-        "Two dusty \033[1;33mbatteries\033[0m lie inside the rusted toolbox.", ItemType::Battery, true));
+    items.push_back(make_unique<Item>("Batteries",
+        "Two dusty \033[1;33mbatteries\033[0m lie inside the rusted toolbox.\n", ItemType::Battery, true));
     basement->AddItem(items.back().get());
 
     //creation food
-    items.push_back(make_unique<Item>("berries",
+    items.push_back(make_unique<Item>("Berries",
         "A cluster of bright red \033[1;33mberries\033[0m grows beneath a twisted bush. They look fresh, although their unusual colour makes you hesitate.\n", 
         ItemType::Food, true, 10, 15));
     Item* berries = items.back().get();
     berries->SetQuantity(RandomBetween(2, 5));
     clearing->AddItem(berries);
 
-    items.push_back(make_unique<Item>("apple", "A surprisingly fresh red \033[1;33mapple\033[0m sits on the table.\n", ItemType::Food, true, 0, 15));
+    items.push_back(make_unique<Item>("Apple", "A surprisingly fresh red \033[1;33mapple\033[0m sits on the table.\n", ItemType::Food, true, 0, 15));
     kitchen->AddItem(items.back().get());
 
     //enemy
     enemies.push_back(make_unique<Enemy>("Garden troll", "A massive \033[1;31mtroll\033[0m stands between you and the entrance of the house.\n", 40, 8));
+    Enemy* gardenTroll = enemies.back().get();
     garden->AddEnemy(enemies.back().get());
+    //item of troll
+    items.push_back(make_unique<Item>("Basement Key", "A heavy iron key covered with dirt and rust.", ItemType::Key, true));
+    gardenTroll->AddLoot(items.back().get());
 }
 
 //--------------------------------------
@@ -551,6 +560,43 @@ void Game::AttackEnemy(const string& enemyName)
 }
 
 //--------------------------------------
+void Game::LootEnemy()
+{
+    Enemy* enemy = currentRoom->GetEnemy();
+
+    if (enemy == nullptr)
+    {
+        cout << "There is nothing to loot here.\n";
+        return;
+    }
+
+    if (enemy->IsAlive())
+    {
+        cout << "You cannot loot the " << enemy->GetName() << " while it is still alive.\n";
+        return;
+    }
+
+    if (!enemy->HasLoot())
+    {
+        cout << "You find nothing else on the " << enemy->GetName() << ".\n";
+        return;
+    }
+
+    cout << "\nYou search the body of the " << enemy->GetName() << ".\n";
+
+    while (enemy->HasLoot())
+    {
+        Item* item = enemy->TakeLoot();
+
+        if (item != nullptr)
+        {
+            player->AddItem(item);
+            cout << "You find: \033[1;33m" << item->GetName() << "\033[0m.\n";
+        }
+    }
+}
+
+//--------------------------------------
 void Game::PutItem(const string& arguments)
 {
     const size_t separator = arguments.find(" in ");
@@ -664,7 +710,7 @@ void Game::ShowMap() const
 |      ^   DARK FOREST   ^-------| FOREST CLEARING|      |
 )MAP"
 
-<< "|       ^               ^        |       \033[1;31mX\033[0m       |"  // had to do like this cause in the R"MAP i can't use colors
+<< "|       ^               ^        |       \033[1;31mX\033[0m        |"  // had to do like this cause in the R"MAP i can't use colors
 
 << R"MAP(       |
 |         ^  ^  ^  ^  ^          '-------+--------'      |
@@ -713,6 +759,35 @@ void Game::LookAtItem(const string& itemName) const
         item = currentRoom->FindItem(itemName);
     }
 
+    Enemy* enemy = currentRoom->GetEnemy();
+
+    if (item == nullptr && enemy != nullptr)
+    {
+        string enemyName = enemy->GetName();
+
+        transform(enemyName.begin(), enemyName.end(), enemyName.begin(), [](unsigned char character)
+            {
+                return static_cast<char>(tolower(character));
+            });
+
+        if (enemyName.find(itemName) == string::npos)
+        {
+            cout << "You cannot see anything called " << itemName << " here.\n";
+            return;
+        }
+
+        if (enemy->IsAlive())
+        {
+            enemy->Look();
+        }
+        else
+        {
+            cout << "\nThe lifeless body of the \033[1;31m" << enemy->GetName() << "\033[0m lies motionless on the ground.\n";
+        }
+
+        return;
+    }
+
     if (item == nullptr)
     {
         cout << "You cannot see an item called " << itemName << ".\n";
@@ -729,7 +804,7 @@ void Game::LookAtItem(const string& itemName) const
         }
         else
         {
-            cout << "The parchment is too fragile to examine from here.\n";
+            cout << "You should pick up the map before unfolding it.\n";
         }
     }
 } 
