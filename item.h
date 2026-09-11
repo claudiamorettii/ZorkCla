@@ -1,6 +1,7 @@
 #pragma once //I use this instead of #ifndef #define #endif 
 
 #include <string>
+#include <vector>
 
 #include "GameObject.h"
 
@@ -23,15 +24,21 @@ enum class ItemType
 class Item : public GameObject
 {
 public:
-    Item(const string& name, const string& description, ItemType type, bool portable, int damage = 0);
+    Item(const string& name, const string& description, ItemType type, bool portable, int damage = 0, int healingAmount = 0);
 
-    int GetDamage() const;
     void Look() const override;
     ItemType GetItemType() const;
     bool IsPortable() const;
+    int GetDamage() const;
+    int GetHealingAmount() const;
+    bool CanContainItems() const;
+    bool AddContent(Item* item);
+    bool ContainsItemType(ItemType type) const;
 
 private:
     ItemType itemType;
     bool portable;
     int damage;
+    int healingAmount;
+    vector<Item*> contents;
 };

@@ -60,7 +60,7 @@ void Room::ShowExits() const
 //--------------------------------------
 void Room::AddExit(const string& direction, Room* destination, const string& viewDescription)
 {
-    exits[direction] = { destination, viewDescription };
+    exits[direction] = {destination, viewDescription};
 }
 
 //--------------------------------------

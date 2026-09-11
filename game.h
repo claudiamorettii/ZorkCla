@@ -38,6 +38,8 @@ private:
     void DropItem(const string& itemName);
     void LookAtItem(const string& itemName) const;
     void EquipItem(const std::string& itemName);
+    void PutItem(const std::string& arguments);
+    bool HasWorkingFlashlight() const;
     
     unique_ptr<Player> player;
 };

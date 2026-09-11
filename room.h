@@ -1,4 +1,4 @@
-#pragma once
+#pragma once //I use this instead of #ifndef #define #endif 
 
 #include <map>
 #include <string>
