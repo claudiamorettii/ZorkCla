@@ -39,12 +39,6 @@ int Enemy::GetMaxHealth() const
 }
 
 //--------------------------------------
-int Enemy::GetAttackDamage() const
-{
-    return attackDamage;
-}
-
-//--------------------------------------
 bool Enemy::IsAlive() const
 {
     return health > 0;

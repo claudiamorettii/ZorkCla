@@ -13,7 +13,6 @@ public:
     void Look() const override;
     int GetHealth() const;
     int GetMaxHealth() const;
-    int GetAttackDamage() const;
     bool IsAlive() const;
     void TakeDamage(int amount);
 

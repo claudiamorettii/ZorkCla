@@ -133,6 +133,10 @@ void Game::ProcessCommand(const string& input)
     {
         EquipItem(argument);
     }
+    else if (command == "attack")
+    {
+        AttackEnemy(argument);
+    }
     else if (command == "inventory" || command == "backpack")
     {
         player->ShowInventory();
@@ -282,7 +286,7 @@ void Game::CreateWorld()
     kitchen->AddItem(items.back().get());
 
     //enemy
-    enemies.push_back(make_unique<Enemy>("troll", "A massive \033[1;31mtroll\033[0m stands between you and the entrance of the house.\n", 40, 8));
+    enemies.push_back(make_unique<Enemy>("Garden troll", "A massive \033[1;31mtroll\033[0m stands between you and the entrance of the house.\n", 40, 8));
     garden->AddEnemy(enemies.back().get());
 }
 
@@ -486,6 +490,64 @@ void Game::EquipItem(const string& itemName)
 
     cout << "You equip the \033[1;33m" << item->GetName() << "\033[0m.\n"
         << "Your attack damage is now " << player->GetAttackDamage() << ".\n";
+}
+
+//--------------------------------------
+void Game::AttackEnemy(const string& enemyName)
+{
+    if (enemyName.empty())
+    {
+        cout << "Attack what?\n";
+        return;
+    }
+
+    Enemy* enemy = currentRoom->GetEnemy();
+
+    if (enemy == nullptr)
+    {
+        cout << "There is no enemy called " << enemyName << " here.\n";
+        return;
+    }
+
+    if (!enemy->IsAlive())
+    {
+        cout << "The " << enemy->GetName() << " is already dead.\n";
+        return;
+    }
+
+    const bool enemyMissed = RandomBetween(1, 100) <= 15;
+    cout << "\n---------------------------------------------------------------------\n";
+   
+    const int playerDamage = player->GetAttackDamage();
+    enemy->TakeDamage(playerDamage);
+
+    cout << "\nYou attack the \033[1;31m" << enemy->GetName() << "\033[0m and deal \033[1;33m" << playerDamage << " damage\033[0m\n"
+         << enemy->GetName() << " health: " << enemy->GetHealth() << "/" << enemy->GetMaxHealth() << ".\n";
+   
+
+    if (!enemy->IsAlive())
+    {
+        cout << "\n\033[1;32mYou defeated the " << enemy->GetName() << "!\033[0m\n";
+        return;
+    }
+    if (enemyMissed)
+    {
+        cout << "\nThe " << enemy->GetName() << " attacks, but misses you.\n";
+    }
+    else
+    {
+        const int enemyDamage = RandomBetween(5, 15);
+        player->TakeDamage(enemyDamage);
+
+        cout << "\nThe \033[1;31m" << enemy->GetName() << "\033[0m attacks you and deals \033[1;31m" << enemyDamage << " damage\033[0m.\n"
+            << "Your health: " << player->GetHealth() << "/" << player->GetMaxHealth() << ".\n";
+    }
+
+    if (!player->IsAlive())
+    {
+        cout << "\n\033[1;31mYour vision fades into darkness...\nYou have died.\033[0m\n";
+        running = false;
+    }
 }
 
 //--------------------------------------
