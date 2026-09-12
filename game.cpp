@@ -47,7 +47,7 @@ void Game::Run()
 {
 
     cout << "\nYou slowly open your eyes...\n";
-    cout << "You cannot remember how you arrived here in\n";
+    cout << "You cannot remember how you arrived here.\n";
 
     LookAround();
      
@@ -118,14 +118,34 @@ void Game::ProcessCommand(const string& input)
     {
         DropItem(argument);
     }
+    else if (command == "map")
+    {
+        ShowMap();
+    }
     else if (command == "eat")
     {
         EatItem(argument);
     }
-    else if (command == "health")
+    else if (command == "stats" || command == "st")
     {
-        cout << "\nYour health: " << player->GetHealth() << "/" << player->GetMaxHealth() << "\n";
-    }
+        cout << "\n\033[1;35mPLAYER STATS\033[0m\n";
+        cout << "Health: \033[1;32m" << player->GetHealth() << "/" << player->GetMaxHealth() << "\033[0m\n";        
+
+        Item* equippedWeapon = player->GetEquippedWeapon();
+
+        if (equippedWeapon != nullptr)
+        {
+            cout << "Equipped weapon: \033[1;33m" << equippedWeapon->GetName() << "\033[0m\n";
+            cout << "Weapon damage: \033[1;34m" << equippedWeapon->GetDamage() << "\033[0m\n";
+        }
+        else
+        {
+            cout << "Equipped weapon: \033[90mnone\033[0m\n";
+            cout << "Base attack damage: \033[1;34m" << player->GetAttackDamage() << "\033[0m\n";
+        }
+
+        cout << "Total attack damage: \033[1;34m" << player->GetAttackDamage() << "\033[0m\n";
+    }    
     else if (command == "equip")
     {
         EquipItem(argument);
@@ -227,7 +247,7 @@ void Game::Move(const string& direction)
 
     if (enemy != nullptr && enemy->IsAlive() && !enemy->IsHostile() && enemy->HasSpoken())
     {
-        cout << "The troll notices you passing and gives you a friendly wave.\n"
+        cout << "The troll notices you passing and gives you a friendly wave.\n";
     }
     
     cout << "And arrive at:\n";
@@ -239,19 +259,19 @@ void Game::Move(const string& direction)
 void Game::ShowHelp() const
 {
     cout << "\nAvailable commands:\n";
-    cout << "- look\n";
-    cout << "- look ...\n";
+    cout << "- look\n";    
     cout << "- go north/south/east/west/up/down\n";
+    cout << "- map\n";
     cout << "- take/pick\n";
     cout << "- drop/leave\n";
-    cout << "- eat ...\n";
+    cout << "- eat\n";
     cout << "- equip\n";
     cout << "- attack\n";
     cout << "- talk to\n";
-    cout << "- inventory/backpack\n";
+    cout << "- inventory/backpack/i\n";
     cout << "- dig\n";
-    cout << "- put\n";
-    cout << "- health\n";
+    cout << "- put ... in ...\n";
+    cout << "- stats\n";
     cout << "- help\n";
     cout << "- quit\n";
 }
@@ -302,7 +322,7 @@ void Game::CreateWorld()
     livingRoom->AddExit("down", basement, "To the \033[1;32meast\033[0m, the archway leads back into the entrance hall.\n");
     basement->AddExit("up", livingRoom, "A narrow wooden staircase leads \033[1;32mup\033[0m to the living Room.\n");
 
-    tunnel->AddExit("south", crystalCave, "Beyond the creature, a pale blue light shines to the \033[1;32msouth\033[0m.\n");
+    tunnel->AddExit("south", crystalCave, "A pale blue light shines to the \033[1;32msouth\033[0m.\n");
     crystalCave->AddExit("north", tunnel, "The dark tunnel waits behind you to the \033[1;32mnorth\033[0m.\n");
 
     currentRoom = darkForest; //player starts at dark forest
@@ -387,7 +407,7 @@ void Game::Dig()
     tunnelRoom->AddExit("up", clearingRoom, "Behind you, the stone steps lead " "\033[1;32mup\033[0m to the Forest Clearing.\n");
 
     cout << "\n---------------------------------------------------------------------\n";
-    cout << "\nYou begin digging beneath the red X.\n"
+    cout << "\nYou begin digging beneath the red \033[1;31mX\033[0m.\n"
         << "Beneath the roots, your hands uncover a flat stone slab.\n"
         << "As you push it aside, a staircase descending underground is revealed.\n";
 
