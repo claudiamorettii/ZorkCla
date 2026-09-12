@@ -40,10 +40,10 @@ private:
     void ShowHelp() const;
     void TakeItem(const string& itemName);
     void DropItem(const string& itemName);
-    void EatItem(const std::string& itemName);
+    void EatItem(const string& itemName);
     void LookAtItem(const string& itemName) const;
-    void EquipItem(const std::string& itemName);
-    void PutItem(const std::string& arguments);
+    void EquipItem(const string& itemName);
+    void PutItem(const string& arguments);
     bool HasWorkingFlashlight() const;
     void AttackEnemy(const string& enemyName);
     void LootEnemy();

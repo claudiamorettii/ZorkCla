@@ -4,11 +4,12 @@
 #include "item.h"
 
 //--------------------------------------
-Enemy::Enemy(const string& name, const string& description, int maxHealth, int attackDamage): 
+Enemy::Enemy(const string& name, const string& description, int maxHealth, int attackDamage, bool startsHostile):
       GameObject(name, description, ObjectType::Enemy),
       health(maxHealth),
       maxHealth(maxHealth),
-      attackDamage(attackDamage)
+      attackDamage(attackDamage),
+      hasSpoken(false)
 {
 }
 
@@ -88,4 +89,28 @@ Item* Enemy::TakeLoot()
     loot.pop_back();
 
     return item;
+}
+
+//--------------------------------------
+bool Enemy::IsHostile() const
+{
+    return hostile;
+}
+
+//--------------------------------------
+bool Enemy::HasSpoken() const
+{
+    return hasSpoken;
+}
+
+//--------------------------------------
+void Enemy::SetHostile(bool value)
+{
+    hostile = value;
+}
+
+//--------------------------------------
+void Enemy::SetHasSpoken(bool value)
+{
+    hasSpoken = value;
 }

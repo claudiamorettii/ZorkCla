@@ -20,7 +20,7 @@ public:
     Room* GetExit(const string& direction) const;
     void AddItem(Item* item);
     bool RemoveItem(Item* item);
-    Item* FindItem(const std::string& name) const;
+    Item* FindItem(const string& name) const;
     void ShowExits() const;
     void AddEnemy(Enemy* enemy);
     Enemy* GetEnemy() const;

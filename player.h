@@ -25,7 +25,7 @@ public:
     void Heal(int amount);
     bool AddItem(Item* item);
     bool RemoveItem(Item* item);
-    Item* FindItem(const std::string& name) const;
+    Item* FindItem(const string& name) const;
     void ShowInventory() const;
     bool Equip(Item* item);
     void Unequip();
