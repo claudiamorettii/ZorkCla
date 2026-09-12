@@ -5,6 +5,7 @@
 #include "Room.h"
 #include "item.h"
 #include "GameObject.h"
+#include "TextUtil.h"
 
 using namespace std; 
 
@@ -13,7 +14,8 @@ Player::Player(const string& name, const string& description, Room* startingRoom
     currentRoom(startingRoom), 
     health(60),
     maxHealth(100), 
-    equippedWeapon(nullptr)
+    equippedWeapon(nullptr),
+    equippedFlashlight(nullptr)
 {
 }
 
@@ -82,13 +84,19 @@ bool Player::Equip(Item* item)
         return false;
     }
 
-    if (item->GetItemType() != ItemType::Weapon)
+    switch (item->GetItemType())
     {
+    case ItemType::Weapon:
+        equippedWeapon = item;
+        return true;
+
+    case ItemType::Flashlight:
+        equippedFlashlight = item;
+        return true;
+
+    default:
         return false;
     }
-
-    equippedWeapon = item;
-    return true;
 }
 
 //--------------------------------------
@@ -180,10 +188,21 @@ void Player::ShowInventory() const
 
     for (const Item* item : inventory)
     {
-        cout
-            << "- "
-            << item->GetName()
-            << '\n';
+        cout << "- \033[1;33m" << item->GetName() << "\033[0m";
+
+        if (NamesMatch(item->GetName(), "berries"))
+        {
+            cout << " x" << item->GetQuantity();
+        }
+
+        if (equippedWeapon == item)
+        {
+            cout << " (equipped)";
+        }
+
+        cout << "\n";
     }
 }
+
+
 

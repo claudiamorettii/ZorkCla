@@ -38,5 +38,6 @@ private:
     int health;
     int maxHealth;
     Item* equippedWeapon;
+    Item* equippedFlashlight;
     vector<Item*> inventory;
 };

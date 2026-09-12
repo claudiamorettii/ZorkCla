@@ -258,6 +258,16 @@ void Game::Move(const string& direction)
     
     cout << "And arrive at:\n";
     currentRoom = destination;
+    if (currentRoom == clearingRoom && currentRoom->FindItem("berries") == nullptr) //berries created here so they can respawn
+    {
+        items.push_back(make_unique<Item>("Berries",
+            "A fresh cluster of \033[1;33mberries\033[0m has grown among the grass since your last visit.\n",
+            ItemType::Food, true, 10, 15));
+
+        items.back()->SetQuantity(RandomBetween(2, 4));
+        clearingRoom->AddItem(items.back().get());
+
+    }
     LookAround();
 }
 
@@ -534,7 +544,7 @@ void Game::EatItem(const string& itemName)
         return;
     }
 
-    const bool harmful = RandomBetween(1, 100) <= 45;
+    const bool harmful = RandomBetween(1, 100) <= 50;
 
     if (!item->ConsumeOne())
     {
@@ -592,19 +602,33 @@ void Game::EquipItem(const string& itemName)
 
     if (item == nullptr)
     {
-        cout << "You are not carrying "
-            << itemName << ".\n";
+        cout << "You do not have " << itemName << " in your inventory.\n";
         return;
     }
 
     if (!player->Equip(item))
     {
-        cout << "You cannot equip that item.\n";
+        cout << "The " << item->GetName() << " cannot be equipped.\n";
         return;
     }
 
-    cout << "You equip the \033[1;33m" << item->GetName() << "\033[0m.\n"
-        << "Your attack damage is now \033[94m" << player->GetAttackDamage() << "\033[0m.\n";
+    cout << "You equip the \033[1;33m" << item->GetName() << "\033[0m.\n";
+
+    if (item->GetItemType() == ItemType::Weapon)
+    {
+        cout << "Your attack damage is now \033[1;34m" << player->GetAttackDamage() << "\033[0m.\n";
+    }
+    else if (item->GetItemType() == ItemType::Flashlight)
+    {
+        if (item->ContainsItemType(ItemType::Battery))
+        {
+            cout << "Its beam cuts through the darkness.\n";
+        }
+        else
+        {
+            cout << "It will not work without batteries.\n";
+        }
+    }
 }
 
 //--------------------------------------
