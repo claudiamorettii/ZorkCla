@@ -9,7 +9,9 @@ Enemy::Enemy(const string& name, const string& description, int maxHealth, int a
       health(maxHealth),
       maxHealth(maxHealth),
       attackDamage(attackDamage),
-      hasSpoken(false)
+      hasSpoken(false),
+      hasBeenAttacked(false),
+    riddleSolved(false)
 {
 }
 
@@ -113,4 +115,28 @@ void Enemy::SetHostile(bool value)
 void Enemy::SetHasSpoken(bool value)
 {
     hasSpoken = value;
+}
+
+//--------------------------------------
+bool Enemy::HasBeenAttacked() const
+{
+    return hasBeenAttacked;
+}
+
+//--------------------------------------
+void Enemy::SetHasBeenAttacked(bool value)
+{
+    hasBeenAttacked = value;
+}
+
+//--------------------------------------
+bool Enemy::HasSolvedRiddle() const
+{
+    return riddleSolved;
+}
+
+//--------------------------------------
+void Enemy::SetRiddleSolved(bool value)
+{
+    riddleSolved = value;
 }

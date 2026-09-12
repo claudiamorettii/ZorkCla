@@ -25,13 +25,18 @@ public:
     bool HasSpoken() const;
     void SetHostile(bool value);
     void SetHasSpoken(bool value);
+    bool HasBeenAttacked() const;
+    void SetHasBeenAttacked(bool value);
+    bool HasSolvedRiddle() const;
+    void SetRiddleSolved(bool value);
 
 private:
     int health;
     int maxHealth;
     int attackDamage;
-
+    bool hasBeenAttacked;
     bool hostile;
     bool hasSpoken;
+    bool riddleSolved;
     vector<Item*> loot;
 };

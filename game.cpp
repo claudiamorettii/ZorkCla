@@ -224,6 +224,12 @@ void Game::Move(const string& direction)
 
         return;
     }
+    if (destination == tunnelRoom && HasWorkingFlashlight())
+    {
+        cout << "You switch on the \033[1;33mflashlight\033[0m and step into the tunnel.\n";
+        cout << "Its trembling beam reveals deep claw marks across the stone walls.\n";
+        cout << "Far below, something large moves through the darkness.\n";
+    }
 
     
     cout << "You head " << direction << "...\n";
@@ -300,7 +306,7 @@ void Game::CreateWorld()
     Room* kitchen = CreateRoom("KITCHEN", "Dust covers the kitchen. A strange smell comes from the cupboards.");
     Room* livingRoom = CreateRoom("LIVING ROOM", "Broken furniture fills the room.");
     Room* basement = CreateRoom("BASEMENT", "Cold, damp air fills the basement. Dusty shelves line the stone walls, and a rusted toolbox lies in a dark corner.");
-    Room* tunnel = CreateRoom("UNDERGROUND TUNNEL", "A narrow tunnel  almost completely dark.");
+    Room* tunnel = CreateRoom("UNDERGROUND TUNNEL", "A narrow tunnel almost completely dark.");
     Room* crystalCave = CreateRoom("CRYSTAL CAVE", "Thousands of crystals rise from the stone, scattering the flashlight's beam into shifting colors.\n");                                   
 
     //exit.second.viewDescription describe with sentence (addexit and then make the exit around)
@@ -314,12 +320,12 @@ void Game::CreateWorld()
     entrance->AddExit("north", garden, "Behind you, the front door opens onto the abandoned garden to the \033[1;32mnorth\033[0m.\n");
 
     entrance->AddExit("east", kitchen, "To the \033[1;32meast\033[0m, a half-open wooden door reveals a dusty kitchen.\n");
-    kitchen->AddExit("west", entrance, "A wide archway  leads \033[1;32mwest\033[0m to the Living Room.\n");
+    kitchen->AddExit("west", entrance, "A wooden door leads \033[1;32mwest\033[0m to the entrance hall.\n");
 
     entrance->AddExit("west", livingRoom, "To the \033[1;32mwest\033[0m, a wide archway opens into a silent living room.\n");
-    livingRoom->AddExit("east", entrance, "A narrow wooden staircase leads \033[1;32mdown\033[0m to the basement.\n"); 
+    livingRoom->AddExit("east", entrance, "To the \033[1;32meast\033[0m, the archway leads back into the entrance hall.\n");
 
-    livingRoom->AddExit("down", basement, "To the \033[1;32meast\033[0m, the archway leads back into the entrance hall.\n");
+    livingRoom->AddExit("down", basement, "A narrow wooden staircase leads \033[1;32mdown\033[0m to the basement.\n");
     basement->AddExit("up", livingRoom, "A narrow wooden staircase leads \033[1;32mup\033[0m to the living Room.\n");
 
     tunnel->AddExit("south", crystalCave, "A pale blue light shines to the \033[1;32msouth\033[0m.\n");
@@ -630,25 +636,27 @@ void Game::AttackEnemy(const string& enemyName)
         return;
     }
 
+    enemy->SetHasBeenAttacked(true);
     const bool enemyMissed = RandomBetween(1, 100) <= 15;
     cout << "\n---------------------------------------------------------------------\n";
 
     if (!enemy->IsHostile())
     {
-        if (enemy->HasSpoken())
+        if (enemy->HasSpoken() && NamesMatch(enemy->GetName(), "troll"))
         {
             cout << "\nThe troll stares at you in disbelief.\n";
             cout << "\n\033[1;36m\"I offered you peace... and this is your answer?\"\033[1;33m\n\n";
+            cout << "\033[1;31mThe " << enemy->GetName() << " lets out a furious roar!\033[0m\n";
         }
-        else
+        else if (NamesMatch(enemy->GetName(), "troll"))
         {
-            cout << "\nYou attack attack the " << enemy->GetName() << " without warning.\n";
+            cout << "\nYou attack the " << enemy->GetName() << " without warning.\n";
             cout << "The creature roars in anger and prepares to fight.\n";
+            cout << "\033[1;31mThe " << enemy->GetName() << " lets out a furious roar!\033[0m\n";
         }
 
         enemy->SetHostile(true);
 
-        cout << "\033[1;31mThe " << enemy->GetName() << "lets out a furious roar!\033[0m\n";
     }
    
     const int playerDamage = player->GetAttackDamage();
@@ -661,7 +669,15 @@ void Game::AttackEnemy(const string& enemyName)
     if (!enemy->IsAlive())
     {
         cout << "\n\033[1;32mYou defeated the " << enemy->GetName() << "!\033[0m\n";
-        cout << "\n\033[1;31mThe " << enemy->GetName() << " collapses to the ground.\033[0m\n";
+
+        if (NamesMatch(enemy->GetName(), "cave guardian") && enemy->HasSolvedRiddle())
+        {
+            cout << "\n\033[1;36m\"You have proven both your mind and your strength. The trial is complete.\"\033[0m\n";
+        }
+        else
+        {
+            cout << "\n\033[1;31mThe " << enemy->GetName() << " collapses to the ground.\033[0m\n";
+        }
 
         if (currentRoom == tunnelRoom)
         {
@@ -959,7 +975,7 @@ void Game::LookAtItem(const string& itemName) const
 }
 
 //--------------------------------------
-//Talk to the troll
+//Talk to the enemy
 void Game::TalkToEnemy(const string& enemyName)
 {
     if (enemyName.empty())
@@ -988,26 +1004,150 @@ void Game::TalkToEnemy(const string& enemyName)
         return;
     }
 
-    if (!NamesMatch(enemy->GetName(), "troll"))
+    if (enemy->HasBeenAttacked())
     {
-        cout << "The " << enemy->GetName() << " does not seem interested in conversation.\n";
+        cout << "\nThe " << enemy->GetName() << " refuses to listen.\n";
+        cout << "\033[1;36m\"It is too late for words.\"\033[0m\n";
         return;
     }
 
-    if (enemy->HasSpoken() && !enemy->IsHostile())
+    if (!NamesMatch(enemy->GetName(), "troll"))
     {
-        cout << "\n\033[1;36m\"I have already given you the key,\"\033[0m the troll mutters.\n";
-        return;
-    }
-       
-    if (enemy->HasSpoken() && enemy->IsHostile())
-    {
+        if (enemy->HasSpoken())
+        {
+            const int enemyDamage = RandomBetween(20, 25);
+
+            cout << "\n\033[1;36m\"The trial is over. Now you must fight.\"\033[0m\n";
+            cout << "\nThe guardian attacks you for \033[1;31m" << enemyDamage << " damage\033[0m.\n";
+
+            player->TakeDamage(enemyDamage);
+
+            if (!player->IsAlive())
+            {
+                cout << "\nYour vision fades into darkness...\n";
+                cout << "\033[1;31mYou have died.\033[0m\n";
+                running = false;
+            }
+
+            return;
+        }
+
         cout << "\n---------------------------------------------------------------------\n";
+        cout << "\nThe Cave Guardian raises one enormous claw.\n";
+        cout << "\n\033[1;36m\"Before steel meets flesh, you may face a different trial.\"\n\n";
+        cout << "\"I have keys but open no locks.\n";
+        cout << "I have space but no room.\n";
+        cout << "You may enter, but cannot go inside.\n";
+        cout << "What am I?\"\033[0m\n";
+        cout << "\nYour answer: ";
+
+        string answer;
+        getline(cin, answer);
+
+        answer = NormalizeName(answer);
+        enemy->SetHasSpoken(true);
+
+        //for the guardian response
+        if (answer == "keyboard" || answer == "akeyboard")
+        {            
+            enemy->TakeDamage(25);
+            enemy->SetRiddleSolved(true);
+
+            cout << "\nThe guardian slowly lowers its enormous claw.\n";
+            cout << "\n\033[1;36m\"Correct. Your mind has earned you an advantage, but only strength will open the path.\"\033[0m\n\n";
+            cout << "Cracks spread across the guardian's dark armour.\n";
+            cout << "The " << enemy->GetName() << " loses \033[1;33m" << 25 << " HP\033[0m.\n";
+            cout << "Health: " << enemy->GetHealth() << "/" << enemy->GetMaxHealth() << ".\n";
+
+        }
+        else
+        {
+            const int enemyDamage = RandomBetween(20, 25);
+
+            cout << "\nThe guardian's eyes burn with a pale light.\n";
+            cout << "\n\033[1;36m\"Wrong. Your mind has failed the trial.\"\033[0m\n\n";
+            cout << "The guardian strikes you for \033[1;31m" << enemyDamage << " damage\033[0m.\n";
+
+            player->TakeDamage(enemyDamage);
+
+            if (!player->IsAlive())
+            {
+                cout << "\nYour vision fades into darkness...\n";
+                cout << "\033[1;31mYou have died.\033[0m\n";
+                running = false;
+            }
+        }
+
+        return;
+
+    }
+
+    //for the troll response
+    if (NamesMatch(enemy->GetName(), "troll"))
+    {
+        if (enemy->HasSpoken() && !enemy->IsHostile())
+        {
+            cout << "\n\033[1;36m\"I have already given you the key,\"\033[0m the troll mutters.\n";
+            return;
+        }
+
+        if (enemy->HasSpoken() && enemy->IsHostile())
+        {
+            cout << "\n---------------------------------------------------------------------\n";
+
+            const int enemyDamage = RandomBetween(20, 25);
+
+            cout << "\n\033[1;36m\"You had your chance. Now, only blood will settle this!\"\033[0m\n\n";
+            cout << "The " << enemy->GetName() << " strikes you for \033[1;31m" << enemyDamage << " damage\033[0m.\n";
+
+            player->TakeDamage(enemyDamage);
+
+            if (!player->IsAlive())
+            {
+                cout << "\nYour vision fades into darkness...\n";
+                cout << "\033[1;31mYou have died.\033[0m\n";
+                running = false;
+            }
+
+            return;
+        }
+        cout << "\n---------------------------------------------------------------------\n";
+        cout << "\nThe troll raises one enormous hand.\n";
+        cout << "\n\033[1;36m\"Answer my question, and the key is yours.\"\n\n";
+        cout << "\"What can answer you, although it never speaks first?\"\033[0m\n";
+        cout << "\nYour answer: ";
+
+        string answer;
+        getline(cin, answer);
+        answer = NormalizeName(answer);
+        enemy->SetHasSpoken(true);
+
+        if (answer == "echo" || answer == "anecho" || answer == "aecho")
+        {
+            enemy->SetHostile(false);
+
+            cout << "\nThe troll smiles and slowly opens its enormous hand.\n";
+            cout << "\n\033[1;36m\"Correct. A promise is a promise. Take the key.\"\033[0m\n\n";
+
+            Item* key = enemy->TakeLoot();
+
+            if (key != nullptr)
+            {
+                player->AddItem(key);
+                cout << "The troll gives you the \033[1;33m" << key->GetName() << "\033[0m.\n";
+            }
+
+            return;
+        }
+
+        enemy->SetHostile(true);
 
         const int enemyDamage = RandomBetween(20, 25);
 
-        cout << "\n\033[1;36m\"You had your chance. Now, only blood will settle this!\"\033[0m\n\n";
-        cout << "The troll strikes you for \033[1;31m" << enemyDamage << " damage\033[0m.\n";
+        cout << "\nThe troll's expression twists into rage.\n\n";
+        cout << "\033[1;31m\"Wrong answer!\"\033[0m\n";
+        cout << "\nThe troll strikes you with tremendous force.\n";
+        cout << "\nYou lose \033[1;31m" << enemyDamage << " HP\033[0m.\n";
 
         player->TakeDamage(enemyDamage);
 
@@ -1017,81 +1157,42 @@ void Game::TalkToEnemy(const string& enemyName)
             cout << "\033[1;31mYou have died.\033[0m\n";
             running = false;
         }
-
-        return;
-    }
-    cout << "\n---------------------------------------------------------------------\n";
-    cout << "\nThe troll raises one enormous hand.\n";
-    cout << "\n\033[1;36m\"Answer my question, and the key is yours.\"\n\n";
-    cout << "\"What can answer you, although it never speaks first?\"\033[0m\n";
-    cout << "\nYour answer: ";
-
-    string answer;
-    getline(cin, answer);
-    answer = NormalizeName(answer);
-    enemy->SetHasSpoken(true);
-
-    if (answer == "echo" || answer == "an echo")
-    {
-        enemy->SetHostile(false);
-
-        cout << "\nThe troll smiles and slowly opens its hand.\n";
-        cout << "\n\033[1;36m\"Correct. A promise is a promise. Take the key.\"\033[0m\n\n";
-
-        Item* key = enemy->TakeLoot();
-
-        if (key != nullptr)
-        {
-            player->AddItem(key);
-            cout << "The troll gives you the \033[1;33m" << key->GetName() << "\033[0m.\n";
-        }
-
         return;
     }
 
-    enemy->SetHostile(true);
-
-    const int enemyDamage = RandomBetween(20, 25);
-    
-    cout << "\nThe troll's expression twists into rage.\n";
-    cout << "\"Wrong answer!\"\n";
-    cout << "The troll strikes you with tremendous force.\n";
-    cout << "You lose \033[1;31m" << enemyDamage << " HP\033[0m.\n";
-
-    player->TakeDamage(enemyDamage);
-
-    if (!player->IsAlive())
-    {
-        cout << "\nYour vision fades into darkness...\n";
-        cout << "\033[1;31mYou have died.\033[0m\n";
-        running = false;
-    }
 }
 
 //--------------------------------------
 //the final
 void Game::FinishGame()
 {
-    cout << "\n---------------------------------------------------------------------\n";
-    cout << "\n\033[1;36mThe moment your fingers touch the crystal, its light becomes blinding.\033[0m\n";
-    cout << "The cave trembles. Cracks spread across the walls as the world begins to disappear.\n";
-    cout << "You try to hold on, but the ground vanishes beneath your feet.\n\n";
+    cout << "\n\033[1;33m===============================================\033[0m\n";
+    cout << "\nThe moment you touch the crystal, an unbearable light fills the cave.\n";
+    cout << "The walls fracture into thousands of glowing symbols.\n";
+    cout << "Trees, stones and shadows dissolve into endless lines of code.\n\n";
 
-    cout << "Then, silence.\n\n";
+    cout << "\033[1;36mThen everything disappears.\033[0m\n\n";
 
-    cout << "You suddenly open your eyes.\n";
-    cout << "You are lying in your bed, breathing heavily as the morning light enters through the window.\n";
-    cout << "The forest, the troll and the Crystal Cave are gone.\n";
-    cout << "It must have been a dream.\n\n";
+    cout << "You suddenly wake up with your head resting on a desk.\n";
+    cout << "Your computer is still running in front of you.\n";
+    cout << "On the screen, a half-finished game waits beneath a blinking cursor.\n\n";
 
-    cout << "As you begin to relax, you feel something cold inside your hand.\n";
-    cout << "You slowly open it.\n\n";
+    cout << "\033[1;35mELOS\n\033[0m";
+    cout << "A text adventure still being programmed...\n\n";
 
-    cout << "\033[1;36mA small blue fragment of crystal rests in your palm.\033[0m\n\n";
+    cout << "You must have fallen asleep while working on the game.\n";
+    cout << "The forest, the troll and the Crystal Cave were only creations of your tired mind.\n\n";
 
-    cout << "\033[1;35m========================================\n";
-    cout << "          YOU HAVE ESCAPED ELOS\n";
-    cout << "========================================\033[0m\n\n";
+    cout << "You smile and reach for the keyboard, but something cold presses against your palm.\n";
+    cout << "Slowly, you open your hand.\n\n";
+
+    cout << "\033[1mA small \033[1;36mblue crystal\033[0m is glowing between your fingers.\033[0m\n\n";
+
+    cout << "Perhaps you did not dream of ELOS.\n";
+    cout << "Perhaps ELOS found a way into your world.\n\n";
+
+    cout << "THE END\n";
+    
 
     running = false;
 }
