@@ -219,11 +219,15 @@ void Game::Move(const string& direction)
         return;
     }
 
-    if (enemy != nullptr && enemy->IsAlive())//if you pass the enemy withput the fight
+    if (enemy != nullptr && enemy->IsAlive() && !enemy->HasSpoken())//if you pass the enemy withput the fight
     {
-        cout
-            << "You carefully move around the \033[1;31m" << enemy->GetName() 
+        cout << "You carefully move around the \033[1;31m" << enemy->GetName() 
             << "\033[0m, keeping a safe distance.\n" << "For now, you manage to avoid the fight.\n";
+    }
+
+    if (enemy != nullptr && enemy->IsAlive() && !enemy->IsHostile() && enemy->HasSpoken())
+    {
+        cout << "The troll notices you passing and gives you a friendly wave.\n"
     }
     
     cout << "And arrive at:\n";
@@ -277,8 +281,7 @@ void Game::CreateWorld()
     Room* livingRoom = CreateRoom("LIVING ROOM", "Broken furniture fills the room.");
     Room* basement = CreateRoom("BASEMENT", "Cold, damp air fills the basement. Dusty shelves line the stone walls, and a rusted toolbox lies in a dark corner.");
     Room* tunnel = CreateRoom("UNDERGROUND TUNNEL", "A narrow tunnel  almost completely dark.");
-    Room* crystalCave = CreateRoom("CRYSTAL CAVE", "Thousands of \033[1;36mcrystals\033[0m rise from the stone, scattering the flashlight's beam into shifting colors.\n"
-                                   "At the center of the cave, an ancient crystal rests upon a stone pedestal.");
+    Room* crystalCave = CreateRoom("CRYSTAL CAVE", "Thousands of crystals rise from the stone, scattering the flashlight's beam into shifting colors.\n");                                   
 
     //exit.second.viewDescription describe with sentence (addexit and then make the exit around)
     darkForest->AddExit("east", clearing, "To the \033[1;32meast\033[0m, a faint trail leads toward a small clearing.\n");
@@ -324,6 +327,10 @@ void Game::CreateWorld()
         "Two dusty \033[1;33mbatteries\033[0m lie inside the rusted toolbox.\n", ItemType::Battery, true));
     basement->AddItem(items.back().get());
 
+    items.push_back(make_unique<Item>("Crystal","A flawless \033[1;33mcrystal\033[0m rests upon an ancient stone pedestal.\n"
+        "A cold blue light pulses from somewhere deep inside it.\n", ItemType::Crystal, true));
+    crystalCaveRoom->AddItem(items.back().get());
+
     //creation food
     items.push_back(make_unique<Item>("Berries",
         "A cluster of bright red \033[1;33mberries\033[0m grows beneath a twisted bush. They look fresh, although their unusual colour makes you hesitate.\n", 
@@ -337,7 +344,7 @@ void Game::CreateWorld()
 
     //enemy
     //guardinan
-    enemies.push_back(make_unique<Enemy>("Cave Guardian", "A towering \033[1;31mcreature\033[0m covered in black scales crouches in the darkness.\n"
+    enemies.push_back(make_unique<Enemy>("Cave Guardian", "A towering \033[1;31mguardian\033[0m covered in black scales crouches in the darkness.\n"
                                          "Its pale eyes follow every movement you make.", 80, 18));
     Enemy* caveGuardian = enemies.back().get();
     tunnelRoom->AddEnemy(caveGuardian);
@@ -414,13 +421,24 @@ void Game::TakeItem(const string& itemName)
     currentRoom->RemoveItem(item);
     player->AddItem(item);
 
-    cout
-        << "You pick up the \033[1;33m" << item->GetName() << "\033[0m.\n";
+    cout << "You pick up the \033[1;33m" << item->GetName() << "\033[0m.\n";
+
+    if (item->GetItemType() == ItemType::Weapon)
+    {
+        cout << "You can equip " << item->GetName() << " if you want.\n";
+        return;
+    }
 
     if (item->GetItemType() == ItemType::Map)
     {
         hasMap = true;
         cout << "You can look at the \033[1;33mold map\033[0m now!\n";
+    }
+
+    if (item->GetItemType() == ItemType::Crystal)
+    {
+        FinishGame();
+        return;
     }
 }
 
@@ -604,13 +622,13 @@ void Game::AttackEnemy(const string& enemyName)
         }
         else
         {
-            cout << "\nYou attack attack the troll without warning.\n";
+            cout << "\nYou attack attack the " << enemy->GetName() << " without warning.\n";
             cout << "The creature roars in anger and prepares to fight.\n";
         }
 
         enemy->SetHostile(true);
 
-        cout << "\033[1;31mThe troll lets out a furious roar!\033[0m\n";
+        cout << "\033[1;31mThe " << enemy->GetName() << "lets out a furious roar!\033[0m\n";
     }
    
     const int playerDamage = player->GetAttackDamage();
@@ -627,7 +645,7 @@ void Game::AttackEnemy(const string& enemyName)
 
         if (currentRoom == tunnelRoom)
         {
-            cout << "The path to the \033[1;36mCrystal Cave\033[0m is now clear.\n";
+            cout << "\nThe path to the \033[1;36mCrystal Cave\033[0m is now clear.\n";
             cout << "A cold blue light shines from the passage to the south.\n";
         }
         return;
@@ -1028,4 +1046,32 @@ void Game::TalkToEnemy(const string& enemyName)
         cout << "\033[1;31mYou have died.\033[0m\n";
         running = false;
     }
+}
+
+//--------------------------------------
+//the final
+void Game::FinishGame()
+{
+    cout << "\n---------------------------------------------------------------------\n";
+    cout << "\n\033[1;36mThe moment your fingers touch the crystal, its light becomes blinding.\033[0m\n";
+    cout << "The cave trembles. Cracks spread across the walls as the world begins to disappear.\n";
+    cout << "You try to hold on, but the ground vanishes beneath your feet.\n\n";
+
+    cout << "Then, silence.\n\n";
+
+    cout << "You suddenly open your eyes.\n";
+    cout << "You are lying in your bed, breathing heavily as the morning light enters through the window.\n";
+    cout << "The forest, the troll and the Crystal Cave are gone.\n";
+    cout << "It must have been a dream.\n\n";
+
+    cout << "As you begin to relax, you feel something cold inside your hand.\n";
+    cout << "You slowly open it.\n\n";
+
+    cout << "\033[1;36mA small blue fragment of crystal rests in your palm.\033[0m\n\n";
+
+    cout << "\033[1;35m========================================\n";
+    cout << "          YOU HAVE ESCAPED ELOS\n";
+    cout << "========================================\033[0m\n\n";
+
+    running = false;
 }

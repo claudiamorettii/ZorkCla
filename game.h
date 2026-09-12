@@ -48,6 +48,8 @@ private:
     void AttackEnemy(const string& enemyName);
     void LootEnemy();
     void TalkToEnemy(const string& enemyName);
+
+    void FinishGame();
     
     unique_ptr<Player> player;
     vector<unique_ptr<Enemy>> enemies;
