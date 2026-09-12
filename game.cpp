@@ -139,11 +139,15 @@ void Game::ProcessCommand(const string& input)
     {
         AttackEnemy(argument);
     }
+    else if (command == "talk to" || command == "talk")
+    {
+        TalkToEnemy(argument);
+    }
     else if (command == "loot")
     {
         LootEnemy();
     }
-    else if (command == "inventory" || command == "backpack")
+    else if (command == "inventory" || command == "backpack" || command == "i")
     {
         player->ShowInventory();
     }
@@ -202,6 +206,15 @@ void Game::Move(const string& direction)
 
     Enemy* enemy = currentRoom->GetEnemy();
 
+    if (currentRoom == tunnelRoom && destination == crystalCaveRoom &&
+        enemy != nullptr && enemy->IsAlive())
+    {
+        cout << "The \033[1;31mCave Guardian\033[0m moves in front of the passage.\n";
+        cout << "\033[1;31mYou cannot reach the Crystal Cave while it is still alive.\033[0m\n";
+        cout << "You must fight it or retreat.\n";
+        return;
+    }
+
     if (enemy != nullptr && enemy->IsAlive())//if you pass the enemy withput the fight
     {
         cout
@@ -225,6 +238,8 @@ void Game::ShowHelp() const
     cout << "- drop/leave\n";
     cout << "- eat ...\n";
     cout << "- equip\n";
+    cout << "- attack\n";
+    cout << "- talk to\n";
     cout << "- inventory/backpack\n";
     cout << "- dig\n";
     cout << "- put\n";
@@ -256,9 +271,10 @@ void Game::CreateWorld()
     Room* entrance = CreateRoom("HOUSE ENTRANCE", "The entrance is cold and silent.");
     Room* kitchen = CreateRoom("KITCHEN", "Dust covers the kitchen. A strange smell comes from the cupboards.");
     Room* livingRoom = CreateRoom("LIVING ROOM", "Broken furniture fills the room.");
-    Room* basement = CreateRoom("BASEMENT", "Cold, damp air fills the basement. Dusty shelves line the stone walls, and a rusted toolbox lies forgotten in a dark corner.");
+    Room* basement = CreateRoom("BASEMENT", "Cold, damp air fills the basement. Dusty shelves line the stone walls, and a rusted toolbox lies in a dark corner.");
     Room* tunnel = CreateRoom("UNDERGROUND TUNNEL", "A narrow tunnel  almost completely dark.");
-    Room* crystalCave = CreateRoom("CRYSTAL CAVE", "Glowing crystals illuminate an enormous underground cave.");
+    Room* crystalCave = CreateRoom("CRYSTAL CAVE", "Thousands of \033[1;36mcrystals\033[0m rise from the stone, scattering the flashlight's beam into shifting colors.\n"
+                                   "At the center of the cave, an ancient crystal rests upon a stone pedestal.");
 
     //exit.second.viewDescription describe with sentence (addexit and then make the exit around)
     darkForest->AddExit("east", clearing, "To the \033[1;32meast\033[0m, a faint trail leads toward a small clearing.\n");
@@ -279,10 +295,14 @@ void Game::CreateWorld()
     livingRoom->AddExit("down", basement, "To the \033[1;32meast\033[0m, the archway leads back into the entrance hall.\n");
     basement->AddExit("up", livingRoom, "A narrow wooden staircase leads \033[1;32mup\033[0m to the living Room.\n");
 
+    tunnel->AddExit("south", crystalCave, "Beyond the creature, a pale blue light shines to the \033[1;32msouth\033[0m.\n");
+    crystalCave->AddExit("north", tunnel, "The dark tunnel waits behind you to the \033[1;32mnorth\033[0m.\n");
+
     currentRoom = darkForest; //player starts at dark forest
     clearingRoom = clearing;
     basementRoom = basement;
     tunnelRoom = tunnel;
+    crystalCaveRoom = crystalCave;
 
     //creation item
     items.push_back(make_unique<Item>("Sword", 
@@ -312,7 +332,14 @@ void Game::CreateWorld()
     kitchen->AddItem(items.back().get());
 
     //enemy
-    enemies.push_back(make_unique<Enemy>("Garden troll", "A massive \033[1;31mtroll\033[0m stands between you and the entrance of the house.\n", 40, 8));
+    //guardinan
+    enemies.push_back(make_unique<Enemy>("Cave Guardian", "A towering \033[1;31mcreature\033[0m covered in black scales crouches in the darkness.\n"
+                                         "Its pale eyes follow every movement you make.", 80, 18));
+    Enemy* caveGuardian = enemies.back().get();
+    tunnelRoom->AddEnemy(caveGuardian);
+   
+    //troll
+    enemies.push_back(make_unique<Enemy>("Garden troll", "A massive \033[1;31mtroll\033[0m stands between you and the entrance of the house.\n", 40, 8, false));
     Enemy* gardenTroll = enemies.back().get();
     garden->AddEnemy(enemies.back().get());
     //item of troll
@@ -348,6 +375,7 @@ void Game::Dig()
 
     tunnelRoom->AddExit("up", clearingRoom, "Behind you, the stone steps lead " "\033[1;32mup\033[0m to the Forest Clearing.\n");
 
+    cout << "\n---------------------------------------------------------------------\n";
     cout << "\nYou begin digging beneath the red X.\n"
         << "Beneath the roots, your hands uncover a flat stone slab.\n"
         << "As you push it aside, a staircase descending underground is revealed.\n";
@@ -559,6 +587,13 @@ void Game::AttackEnemy(const string& enemyName)
     if (!enemy->IsAlive())
     {
         cout << "\n\033[1;32mYou defeated the " << enemy->GetName() << "!\033[0m\n";
+        cout << "\n\033[1;31mThe " << enemy->GetName() << " collapses to the ground.\033[0m\n";
+
+        if (currentRoom == tunnelRoom)
+        {
+            cout << "The path to the \033[1;36mCrystal Cave\033[0m is now clear.\n";
+            cout << "A cold blue light shines from the passage to the south.\n";
+        }
         return;
     }
     if (enemyMissed)
@@ -748,7 +783,7 @@ void Game::ShowMap() const
 |    | LIVING | ENTRANCE |KITCHEN|       :               |
 |    |  ROOM  |          |       |       :               |
 |    | (west) |          |(east) |       :               |
-|    +----+----+----------+------+       :               |
+|    +----+---+----------+-------+       :               |
 |         |                              :               |
 |     +---+---------+                    :               |
 |     |  BASEMENT   |                    :               |
@@ -856,4 +891,111 @@ void Game::LookAtItem(const string& itemName) const
     }
 
     cout << "You cannot see anything called " << itemName << " here.\n";
+}
+
+//--------------------------------------
+//Talk to the troll
+void Game::TalkToEnemy(const string& enemyName)
+{
+    if (enemyName.empty())
+    {
+        cout << "Talk to whom?\n";
+        return;
+    }
+
+    Enemy* enemy = currentRoom->GetEnemy();
+
+    if (enemy == nullptr || enemy->GetName() != enemyName)
+    {
+        cout << "There is no " << enemyName << " here.\n";
+        return;
+    }
+
+    if (!enemy->IsAlive())
+    {
+        cout << "The " << enemy->GetName() << " is dead and cannot answer.\n";
+        return;
+    }
+
+    if (enemy->GetName() != "troll")
+    {
+        cout << "The " << enemy->GetName() << " does not seem interested in conversation.\n";
+        return;
+    }
+
+    if (enemy->HasSpoken() && !enemy->IsHostile())
+    {
+        cout << "\"I have already given you the key,\" the troll mutters.\n";
+        return;
+    }
+    const int enemyDamage = RandomBetween(20, 25);
+   
+    if (enemy->HasSpoken() && enemy->IsHostile())
+    {
+        cout << "\"You had your chance. Now, only blood will settle this!\"\n";
+        cout << "The troll strikes you for \033[1;31m" << enemyDamage << " damage\033[0m.\n";
+
+        player->TakeDamage(enemyDamage);
+
+        if (!player->IsAlive())
+        {
+            cout << "\nYour vision fades into darkness...\n";
+            cout << "\033[1;31mYou have died.\033[0m\n";
+            running = false;
+        }
+
+        return;
+    }
+
+    cout << "\nThe troll raises one enormous hand.\n";
+    cout << "\"Answer my question, and the key is yours.\"\n\n";
+    cout << "\"What can answer you, although it never speaks first?\"\n";
+    cout << "\nYour answer: ";
+
+    string answer;
+    getline(cin, answer);
+
+    transform(answer.begin(), answer.end(), answer.begin(), [](unsigned char character)
+        {
+            return static_cast<char>(tolower(character));
+        });
+
+    enemy->SetHasSpoken(true);
+
+    if (answer == "echo" || answer == "an echo")
+    {
+        enemy->SetHostile(false);
+
+        cout << "\nThe troll smiles and slowly opens its hand.\n";
+        cout << "\"Correct. A promise is a promise. Take the key.\"\n";
+
+        Item* key = enemy->TakeLoot();
+
+        if (key != nullptr)
+        {
+            player->AddItem(key);
+            cout << "The troll gives you the \033[1;33m" << key->GetName() << "\033[0m.\n";
+        }
+
+        return;
+    }
+
+    enemy->SetHostile(true);
+
+    
+    player->TakeDamage(enemyDamage);
+
+    cout << "\nThe troll's expression twists into rage.\n";
+    cout << "\"Wrong answer!\"\n";
+    cout << "The troll strikes you with tremendous force.\n";
+    cout << "You lose \033[1;31m" << enemyDamage << " HP\033[0m.\n";
+
+    player->TakeDamage(enemyDamage);
+
+    if (!player->IsAlive())
+    {
+        cout << "\nYour vision fades into darkness...\n";
+        cout << "\033[1;31mYou have died.\033[0m\n";
+        running = false;
+    }
 }

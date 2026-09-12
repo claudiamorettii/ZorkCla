@@ -46,7 +46,8 @@ void Room::Look() const
         {
             if (enemy->IsAlive())
             {
-                cout << enemy->GetDescription() << "\n";
+                cout << enemy->GetDescription();
+                cout << enemy->GetName() << " health: " << enemy->GetHealth() << "/" << enemy->GetMaxHealth() << "\n";
             }
             else
             {

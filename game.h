@@ -28,6 +28,7 @@ private:
     bool basementUnlocked;
     bool hasMap;
     bool passageDiscovered;
+    Room* crystalCaveRoom;
 
     void ShowMap() const;
     void Dig();
@@ -46,6 +47,7 @@ private:
     bool HasWorkingFlashlight() const;
     void AttackEnemy(const string& enemyName);
     void LootEnemy();
+    void TalkToEnemy(const string& enemyName);
     
     unique_ptr<Player> player;
     vector<unique_ptr<Enemy>> enemies;
