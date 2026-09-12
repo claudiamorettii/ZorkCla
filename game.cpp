@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <sstream>
 #include <algorithm>
 #include <cctype>
@@ -9,6 +9,7 @@
 #include "game.h"
 #include "player.h"
 #include "enemy.h"
+#include "TextUtil.h"
 
 //--------------------------------------
 //for the random berries
@@ -65,13 +66,7 @@ void Game::Run()
 //commands to be fixed
 void Game::ProcessCommand(const string& input)
 {
-    string normalizedInput = input;
-
-    transform(normalizedInput.begin(), normalizedInput.end(), normalizedInput.begin(),[](unsigned char character)
-        {
-            return static_cast<char>(tolower(character));
-        }
-    );
+    string normalizedInput = ToLower(input);
 
     istringstream commandStream(normalizedInput);
 
@@ -139,8 +134,17 @@ void Game::ProcessCommand(const string& input)
     {
         AttackEnemy(argument);
     }
-    else if (command == "talk to" || command == "talk")
+    else if (command == "talk")
     {
+        if (argument == "to")
+        {
+            argument.clear();
+        }
+        else if (argument.rfind("to ", 0) == 0)
+        {
+            argument.erase(0, 3);
+        }
+
         TalkToEnemy(argument);
     }
     else if (command == "loot")
@@ -442,6 +446,14 @@ void Game::DropItem(const string& itemName)
 
     cout << "You drop the \033[1;33m" << item->GetName() << "\033[0m.\n";
 
+    if (player->GetEquippedWeapon() == item)
+    {
+        player->Unequip();
+
+        cout << "You unequip the \033[1;33m" << item->GetName() << "\033[0m before dropping it.\n";
+        cout << "Your attack power returns to \033[94m" << player->GetAttackDamage() << "\033[0m.\n";
+    }
+
     if (item->GetItemType() == ItemType::Map)
     {
         hasMap = false;
@@ -548,7 +560,7 @@ void Game::EquipItem(const string& itemName)
     }
 
     cout << "You equip the \033[1;33m" << item->GetName() << "\033[0m.\n"
-        << "Your attack damage is now " << player->GetAttackDamage() << ".\n";
+        << "Your attack damage is now \033[94m" << player->GetAttackDamage() << "\033[0m.\n";
 }
 
 //--------------------------------------
@@ -568,6 +580,12 @@ void Game::AttackEnemy(const string& enemyName)
         return;
     }
 
+    if (!NamesMatch(enemy->GetName(), enemyName))
+    {
+        cout << "There is no enemy called " << enemyName << " here.\n";
+        return;
+    }
+
     if (!enemy->IsAlive())
     {
         cout << "The " << enemy->GetName() << " is already dead.\n";
@@ -576,6 +594,24 @@ void Game::AttackEnemy(const string& enemyName)
 
     const bool enemyMissed = RandomBetween(1, 100) <= 15;
     cout << "\n---------------------------------------------------------------------\n";
+
+    if (!enemy->IsHostile())
+    {
+        if (enemy->HasSpoken())
+        {
+            cout << "\nThe troll stares at you in disbelief.\n";
+            cout << "\n\033[1;36m\"I offered you peace... and this is your answer?\"\033[1;33m\n\n";
+        }
+        else
+        {
+            cout << "\nYou attack attack the troll without warning.\n";
+            cout << "The creature roars in anger and prepares to fight.\n";
+        }
+
+        enemy->SetHostile(true);
+
+        cout << "\033[1;31mThe troll lets out a furious roar!\033[0m\n";
+    }
    
     const int playerDamage = player->GetAttackDamage();
     enemy->TakeDamage(playerDamage);
@@ -865,29 +901,20 @@ void Game::LookAtItem(const string& itemName) const
         return;
 
     }
-
-    if (enemy != nullptr)
+   
+    if (enemy != nullptr && NamesMatch(enemy->GetName(), itemName))
     {
-        string enemyName = enemy->GetName();
-
-        transform(enemyName.begin(), enemyName.end(), enemyName.begin(), [](unsigned char character)
-            {
-                return static_cast<char>(tolower(character));
-            });
-
-        if (enemyName.find(itemName) != string::npos)
+        if (enemy->IsAlive())
         {
-            if (enemy->IsAlive())
-            {
                 enemy->Look();
-            }
-            else
-            {
-                cout << "\nThe lifeless body of the \033[1;31m" << enemy->GetName() << "\033[0m lies on the ground.\n";
-            }
-
-            return;
         }
+        else
+        {
+                cout << "\nThe lifeless body of the \033[1;31m" << enemy->GetName() << "\033[0m lies on the ground.\n";
+        }
+
+        return;
+       
     }
 
     cout << "You cannot see anything called " << itemName << " here.\n";
@@ -905,7 +932,13 @@ void Game::TalkToEnemy(const string& enemyName)
 
     Enemy* enemy = currentRoom->GetEnemy();
 
-    if (enemy == nullptr || enemy->GetName() != enemyName)
+    if (enemy == nullptr)
+    {
+        cout << "There is no enemy here.\n";
+        return;
+    }
+
+    if (!NamesMatch(enemy->GetName(), enemyName))
     {
         cout << "There is no " << enemyName << " here.\n";
         return;
@@ -917,7 +950,7 @@ void Game::TalkToEnemy(const string& enemyName)
         return;
     }
 
-    if (enemy->GetName() != "troll")
+    if (!NamesMatch(enemy->GetName(), "troll"))
     {
         cout << "The " << enemy->GetName() << " does not seem interested in conversation.\n";
         return;
@@ -925,14 +958,17 @@ void Game::TalkToEnemy(const string& enemyName)
 
     if (enemy->HasSpoken() && !enemy->IsHostile())
     {
-        cout << "\"I have already given you the key,\" the troll mutters.\n";
+        cout << "\n\033[1;36m\"I have already given you the key,\"\033[0m the troll mutters.\n";
         return;
     }
-    const int enemyDamage = RandomBetween(20, 25);
-   
+       
     if (enemy->HasSpoken() && enemy->IsHostile())
     {
-        cout << "\"You had your chance. Now, only blood will settle this!\"\n";
+        cout << "\n---------------------------------------------------------------------\n";
+
+        const int enemyDamage = RandomBetween(20, 25);
+
+        cout << "\n\033[1;36m\"You had your chance. Now, only blood will settle this!\"\033[0m\n\n";
         cout << "The troll strikes you for \033[1;31m" << enemyDamage << " damage\033[0m.\n";
 
         player->TakeDamage(enemyDamage);
@@ -946,20 +982,15 @@ void Game::TalkToEnemy(const string& enemyName)
 
         return;
     }
-
+    cout << "\n---------------------------------------------------------------------\n";
     cout << "\nThe troll raises one enormous hand.\n";
-    cout << "\"Answer my question, and the key is yours.\"\n\n";
-    cout << "\"What can answer you, although it never speaks first?\"\n";
+    cout << "\n\033[1;36m\"Answer my question, and the key is yours.\"\n\n";
+    cout << "\"What can answer you, although it never speaks first?\"\033[0m\n";
     cout << "\nYour answer: ";
 
     string answer;
     getline(cin, answer);
-
-    transform(answer.begin(), answer.end(), answer.begin(), [](unsigned char character)
-        {
-            return static_cast<char>(tolower(character));
-        });
-
+    answer = NormalizeName(answer);
     enemy->SetHasSpoken(true);
 
     if (answer == "echo" || answer == "an echo")
@@ -967,7 +998,7 @@ void Game::TalkToEnemy(const string& enemyName)
         enemy->SetHostile(false);
 
         cout << "\nThe troll smiles and slowly opens its hand.\n";
-        cout << "\"Correct. A promise is a promise. Take the key.\"\n";
+        cout << "\n\033[1;36m\"Correct. A promise is a promise. Take the key.\"\033[0m\n\n";
 
         Item* key = enemy->TakeLoot();
 
@@ -982,9 +1013,8 @@ void Game::TalkToEnemy(const string& enemyName)
 
     enemy->SetHostile(true);
 
+    const int enemyDamage = RandomBetween(20, 25);
     
-    player->TakeDamage(enemyDamage);
-
     cout << "\nThe troll's expression twists into rage.\n";
     cout << "\"Wrong answer!\"\n";
     cout << "The troll strikes you with tremendous force.\n";

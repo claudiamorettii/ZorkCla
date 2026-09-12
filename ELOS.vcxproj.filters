@@ -36,6 +36,9 @@
     <ClCompile Include="enemy.cpp">
       <Filter>File di risorse</Filter>
     </ClCompile>
+    <ClCompile Include="TextUtil.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h">
@@ -54,6 +57,9 @@
       <Filter>File di risorse</Filter>
     </ClInclude>
     <ClInclude Include="enemy.h">
+      <Filter>File di risorse</Filter>
+    </ClInclude>
+    <ClInclude Include="TextUtil.h">
       <Filter>File di risorse</Filter>
     </ClInclude>
   </ItemGroup>
