@@ -316,8 +316,7 @@ void Game::ShowHelp() const
     cout << "\n\033[1;32mPLAYER\033[0m\n";
     cout << " - inventory/i              View the items you are carrying.\n";    
     cout << " - stats/st                 View health, attack damage and equipment.\n";
-    cout << " - health                   View your current health.\n";
-
+    
     cout << "\n\033[1;37mGAME\033[0m\n";
     cout << " - help                     Display this list of commands.\n";
     cout << " - quit                     Exit the game.\n";

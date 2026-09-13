@@ -22,5 +22,11 @@ int main()
 	cout << "\nThank you for playing my game! :)\n";
 
 	cout << "\n\033[1;33m===============================================\033[0m\n";
+
+	cout << "\nPress Enter to close the game...";
+
+	string finalInput;
+	getline(cin, finalInput);
+
 	return 0;
 }
