@@ -10,6 +10,19 @@ Claudia Moretti
 ## Repository
 https://github.com/claudiamorettii/ZorkCla
 
+## Requirements
+
+### To Play
+
+* Windows 10 or later is recommended.
+* The game may also run on Windows 7, but ANSI colours might not be displayed correctly.
+
+### To Build
+
+* Visual Studio 2022 Community
+* A compiler supporting modern C++
+
+
 ## Complete Walkthrough
 0. Type "help" to show all available commands.
 1. From the dark forest, go east to the forest clearing.
