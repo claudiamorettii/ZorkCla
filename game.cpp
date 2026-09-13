@@ -175,7 +175,7 @@ void Game::ProcessCommand(const string& input)
     {
         LootEnemy();
     }
-    else if (command == "inventory" || command == "backpack" || command == "i")
+    else if (command == "inventory" || command == "i")
     {
         player->ShowInventory();
     }
@@ -291,23 +291,38 @@ void Game::Move(const string& direction)
 //--------------------------------------
 void Game::ShowHelp() const
 {
-    cout << "\nAvailable commands:\n";
-    cout << "- look ...\n";    
-    cout << "- go north/south/east/west/up/down\n";
-    cout << "- map\n";
-    cout << "- take/pick\n";
-    cout << "- drop/leave\n";
-    cout << "- eat\n";
-    cout << "- equip\n";
-    cout << "- unequip\n";
-    cout << "- attack\n";
-    cout << "- talk to\n";
-    cout << "- inventory/backpack/i\n";
-    cout << "- dig\n";
-    cout << "- put ... in ...\n";
-    cout << "- stats\n";
-    cout << "- help\n";
-    cout << "- quit\n";
+    cout << "\n\033[1;35m================== AVAILABLE COMMANDS ==================\033[0m\n";
+
+    cout << "\n\033[1;36mEXPLORATION\033[0m\n";
+    cout << " - go <direction>           Move north, south, east, west, up or down.\n";
+    cout << " - look                     Look around the current room.\n";
+    cout << " - look <target>            Examine an item or enemy.\n";
+    cout << " - dig                      Dig in the current location.\n";
+    cout << " - map                      View the map, if you are carrying it.\n";
+
+    cout << "\n\033[1;31mENEMIES\033[0m\n";
+    cout << " - attack <enemy>           Attack an enemy.\n";
+    cout << " - talk/talk to <enemy>     Talk to an enemy.\n";    
+    cout << " - loot <enemy>             Take items from a defeated enemy.\n";
+
+    cout << "\n\033[1;33mITEMS\033[0m\n";
+    cout << " - take/pick <item>         Pick up an item from the room.\n";
+    cout << " - drop/leave <item>        Leave an item in the current room.\n";
+    cout << " - equip <item>             Equip a weapon or flashlight.\n";
+    cout << " - unequip <item>           Unequip a weapon or flashlight.\n";
+    cout << " - eat <item>               Eat food from your inventory.\n";
+    cout << " - put <item> in <item>     Put an item inside another item.\n";
+
+    cout << "\n\033[1;32mPLAYER\033[0m\n";
+    cout << " - inventory/i              View the items you are carrying.\n";    
+    cout << " - stats/st                 View health, attack damage and equipment.\n";
+    cout << " - health                   View your current health.\n";
+
+    cout << "\n\033[1;37mGAME\033[0m\n";
+    cout << " - help                     Display this list of commands.\n";
+    cout << " - quit                     Exit the game.\n";
+
+    cout << "\n\033[1;35m========================================================\033[0m\n";
 }
 
 //--------------------------------------
@@ -486,8 +501,8 @@ void Game::TakeItem(const string& itemName)
     if (item->GetItemType() == ItemType::Map)
     {
         hasMap = true;
-        cout << "You can look at the \033[1;33mold map\033[0m now!\n";
-    }
+        cout << "You can take a look at the \033[1;33mold map\033[0m now!\n";
+    } 
 
     if (item->GetItemType() == ItemType::Crystal)
     {
@@ -541,6 +556,7 @@ void Game::DropItem(const string& itemName)
     }
 }
 
+//--------------------------------------
 void Game::UnequipItem(const string& itemName)
 {
     if (itemName.empty())
@@ -606,7 +622,7 @@ void Game::EatItem(const string& itemName)
         return;
     }
       
-     bool harmful = RandomBetween(1, 100) <= 50;
+     bool harmful = RandomBetween(1, 100) <= 48;
              
 
     if (!item->ConsumeOne())
@@ -750,13 +766,20 @@ void Game::AttackEnemy(const string& enemyName)
         enemy->SetHostile(true);
 
     }
-   
-    const int playerDamage = player->GetAttackDamage();
-    enemy->TakeDamage(playerDamage);
+    const bool playerMissed = RandomBetween(1, 100) <= 15;
 
-    cout << "\nYou attack the \033[1;31m" << enemy->GetName() << "\033[0m and deal \033[1;33m" << playerDamage << " damage\033[0m\n"
-         << enemy->GetName() << " health: " << enemy->GetHealth() << "/" << enemy->GetMaxHealth() << ".\n";
-   
+    if (playerMissed)
+    {
+        cout << "\nYou swing at the " << enemy->GetName() << " but your attack misses.\n";
+    }
+    else
+    {
+        const int playerDamage = player->GetAttackDamage();
+        enemy->TakeDamage(playerDamage);
+
+        cout << "\nYou attack the \033[1;31m" << enemy->GetName() << "\033[0m and deal \033[1;33m" << playerDamage << " damage\033[0m\n"
+            << enemy->GetName() << " health: " << enemy->GetHealth() << "/" << enemy->GetMaxHealth() << ".\n";
+    }
 
     if (!enemy->IsAlive())
     {
@@ -830,7 +853,7 @@ void Game::LootEnemy()
         if (item != nullptr)
         {
             player->AddItem(item);
-            cout << "You find: \033[1;33m" << item->GetName() << "\033[0m.\n";
+            cout << "You take: \033[1;33m" << item->GetName() << "\033[0m.\n";
         }
     }
 }

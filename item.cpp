@@ -120,3 +120,13 @@ bool Item::ConsumeOne()
     --quantity;
     return true;
 }
+
+//--------------------------------------
+//For the berries
+void Item::AddQuantity(int amount)
+{
+    if (amount > 0)
+    {
+        quantity += amount;
+    }
+}

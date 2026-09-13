@@ -39,6 +39,7 @@ public:
     int GetQuantity() const;
     void SetQuantity(int amount);
     bool ConsumeOne();
+    void AddQuantity(int amount);
 
 private:
     ItemType itemType;

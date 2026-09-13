@@ -156,6 +156,17 @@ bool Player::AddItem(Item* item)
         return false;
     }
 
+    if (NamesMatch(item->GetName(), "berries"))
+    {
+        Item* existingBerries = FindItem("berries");
+
+        if (existingBerries != nullptr)
+        {
+            existingBerries->AddQuantity(item->GetQuantity());
+            return true;
+        }
+    }
+
     inventory.push_back(item);
     return true;
 }
@@ -215,11 +226,7 @@ void Player::ShowInventory() const
 
         if (NamesMatch(item->GetName(), "berries"))
         {
-           
-            if (NamesMatch(item->GetName(), "berries"))//AAAAAAaaaaaaaaaaaaaaaaaaaaaaaa
-            {
-                cout << " x" << item->GetQuantity();
-            }
+            cout << " x" << item->GetQuantity();
         }
 
         if (equippedWeapon == item)
