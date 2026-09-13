@@ -150,6 +150,10 @@ void Game::ProcessCommand(const string& input)
     {
         EquipItem(argument);
     }
+    else if (command == "unequip")
+    {
+        UnequipItem(argument);
+    }
     else if (command == "attack")
     {
         AttackEnemy(argument);
@@ -216,11 +220,24 @@ void Game::Move(const string& direction)
         cout << "With a loud metallic click, the basement door opens.\n";
     }
 
-    if (destination == tunnelRoom && !HasWorkingFlashlight() //only with flashligh
-        )
+    if (destination == tunnelRoom && !HasWorkingFlashlight()) //only with flashligh
     {
-        cout << "The passage is completely dark.\nYou hear something moving below, but you cannot see it.\n"
-            << "You need a working \033[1;33mflashlight\033[0m before going down.\n";
+        cout << "The passage is completely dark.\nYou hear something moving below, but you cannot see it.\n";
+
+        Item* flashlight = player->FindItem("flashlight");
+
+        if (flashlight == nullptr)
+        {
+                cout << "You need to find a \033[1;33mflashlight\033[0m before going down.\n";
+        }
+        else if (!flashlight->ContainsItemType(ItemType::Battery))
+        {
+                cout << "The flashlight needs \033[1;33mbatteries\033[0m before it can work.\n";
+        }
+        else
+        {
+                cout << "You need to \033[1;32mequip the flashlight\033[0m before going down.\n";
+        }
 
         return;
     }
@@ -275,13 +292,14 @@ void Game::Move(const string& direction)
 void Game::ShowHelp() const
 {
     cout << "\nAvailable commands:\n";
-    cout << "- look\n";    
+    cout << "- look ...\n";    
     cout << "- go north/south/east/west/up/down\n";
     cout << "- map\n";
     cout << "- take/pick\n";
     cout << "- drop/leave\n";
     cout << "- eat\n";
     cout << "- equip\n";
+    cout << "- unequip\n";
     cout << "- attack\n";
     cout << "- talk to\n";
     cout << "- inventory/backpack/i\n";
@@ -375,7 +393,7 @@ void Game::CreateWorld()
     berries->SetQuantity(RandomBetween(2, 5));
     clearing->AddItem(berries);
 
-    items.push_back(make_unique<Item>("Apple", "A surprisingly fresh red \033[1;33mapple\033[0m sits on the table.\n", ItemType::Food, true, 0, 15));
+    items.push_back(make_unique<Item>("Apple", "A surprisingly fresh red \033[1;33mapple\033[0m sits on the table.\n", ItemType::Food, true, 0, 20));
     kitchen->AddItem(items.back().get());
 
     //enemy
@@ -459,7 +477,7 @@ void Game::TakeItem(const string& itemName)
 
     cout << "You pick up the \033[1;33m" << item->GetName() << "\033[0m.\n";
 
-    if (item->GetItemType() == ItemType::Weapon)
+    if (item->GetItemType() == ItemType::Weapon || item->GetItemType() == ItemType::Flashlight)
     {
         cout << "You can equip " << item->GetName() << " if you want.\n";
         return;
@@ -502,15 +520,59 @@ void Game::DropItem(const string& itemName)
 
     if (player->GetEquippedWeapon() == item)
     {
-        player->Unequip();
+        player->Unequip(item);
 
-        cout << "You unequip the \033[1;33m" << item->GetName() << "\033[0m before dropping it.\n";
-        cout << "Your attack power returns to \033[94m" << player->GetAttackDamage() << "\033[0m.\n";
+        cout << "You unequip the \033[1;33m" << item->GetName() << "\033[0m before dropping it.\n";   
+
+        if (item->GetItemType() == ItemType::Weapon)
+        {
+            cout << "Your attack damage returns to \033[1;34m" << player->GetAttackDamage() << "\033[0m.\n";
+        }
+
+        if (item->GetItemType() == ItemType::Flashlight)
+        {
+            cout << "The flashlight is no longer ready to light your way.\n";
+        }
     }
 
     if (item->GetItemType() == ItemType::Map)
     {
         hasMap = false;
+    }
+}
+
+void Game::UnequipItem(const string& itemName)
+{
+    if (itemName.empty())
+    {
+        cout << "Unequip what?\n";
+        return;
+    }
+
+    Item* item = player->FindItem(itemName);
+
+    if (item == nullptr)
+    {
+        cout << "You do not have " << itemName << " in your inventory.\n";
+        return;
+    }
+
+    if (!player->Unequip(item))
+    {
+        cout << "The " << item->GetName() << " is not equipped.\n";
+        return;
+    }
+
+    cout << "You unequip the \033[1;33m" << item->GetName() << "\033[0m.\n";
+
+    if (item->GetItemType() == ItemType::Weapon)
+    {
+        cout << "Your attack damage returns to \033[1;34m" << player->GetAttackDamage() << "\033[0m.\n";
+    }
+
+    if (item->GetItemType() == ItemType::Flashlight)
+    {
+        cout << "The flashlight is no longer ready to light your way.\n";
     }
 }
 
@@ -543,8 +605,9 @@ void Game::EatItem(const string& itemName)
         cout << "You are already at full health.\n";
         return;
     }
-
-    const bool harmful = RandomBetween(1, 100) <= 50;
+      
+     bool harmful = RandomBetween(1, 100) <= 50;
+             
 
     if (!item->ConsumeOne())
     {
@@ -556,6 +619,11 @@ void Game::EatItem(const string& itemName)
     cout << "\nYou eat one of the "
         << item->GetName()
         << ".\n";
+
+    if (NamesMatch(item->GetName(), "apple"))
+    {
+        harmful = false;
+    }
 
     if (harmful)
     {
@@ -843,6 +911,12 @@ bool Game::HasWorkingFlashlight() const
     {
         return false;
     }
+
+    if (player->GetEquippedFlashlight() != flashlight)
+    {
+        return false;
+    }
+
 
     return flashlight->ContainsItemType(ItemType::Battery);
 }

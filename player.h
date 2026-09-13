@@ -28,8 +28,9 @@ public:
     Item* FindItem(const string& name) const;
     void ShowInventory() const;
     bool Equip(Item* item);
-    void Unequip();
+    bool Unequip(Item* item);
     Item* GetEquippedWeapon() const;
+    Item* GetEquippedFlashlight() const;
     int GetAttackDamage() const;
 
 private:

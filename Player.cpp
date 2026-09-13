@@ -100,15 +100,38 @@ bool Player::Equip(Item* item)
 }
 
 //--------------------------------------
-void Player::Unequip()
+bool Player::Unequip(Item* item)
 {
-    equippedWeapon = nullptr;
+    if (item == nullptr)
+    {
+        return false;
+    }
+
+    if (equippedWeapon == item)
+    {
+        equippedWeapon = nullptr;
+        return true;
+    }
+
+    if (equippedFlashlight == item)
+    {
+        equippedFlashlight = nullptr;
+        return true;
+    }
+
+    return false;
+    
 }
 
 //--------------------------------------
 Item* Player::GetEquippedWeapon() const
 {
     return equippedWeapon;
+}
+
+Item* Player::GetEquippedFlashlight() const
+{
+    return equippedFlashlight;
 }
 
 //--------------------------------------
@@ -192,10 +215,18 @@ void Player::ShowInventory() const
 
         if (NamesMatch(item->GetName(), "berries"))
         {
-            cout << " x" << item->GetQuantity();
+           
+            if (NamesMatch(item->GetName(), "berries"))//AAAAAAaaaaaaaaaaaaaaaaaaaaaaaa
+            {
+                cout << " x" << item->GetQuantity();
+            }
         }
 
         if (equippedWeapon == item)
+        {
+            cout << " (equipped)";
+        }
+        if (equippedFlashlight == item)
         {
             cout << " (equipped)";
         }
