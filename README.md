@@ -10,8 +10,6 @@ Claudia Moretti
 ## Repository
 https://github.com/claudiamorettii/ZorkCla
 
-## License
-
 ## Complete Walkthrough
 0. Type "help" to show all available commands.
 1. From the dark forest, go east to the forest clearing.
@@ -51,4 +49,28 @@ https://github.com/claudiamorettii/ZorkCla
 I developed the game gradually, starting with the creation of rooms and movement between them. I then introduced items, inventory management, equipment, combat and dialogue. The main challenges involved moving items correctly between different locations, recognizing multi-word commands and managing enemy states based on the player’s previous actions.
 
 I particularly enjoyed creating the enemy riddles, especially the Troll encounter (more in line with my D&D-inspired style, where not every encounter has to end in combat), as well as the hidden passage revealed by the map. I also focused on making the game visually pleasant despite being entirely text-based, using colours, separators and an ASCII map to make rooms, objects, dialogue and important events clearer and more engaging.
+
+## License
+MIT License
+
+Copyright (c) 2026 Claudia Moretti
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
 
